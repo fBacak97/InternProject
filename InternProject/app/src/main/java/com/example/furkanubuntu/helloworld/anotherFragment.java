@@ -11,12 +11,12 @@ import android.view.ViewGroup;
  * Created by furkanubuntu on 6/22/17.
  */
 
-public class itemFragment extends Fragment {
+public class anotherFragment extends Fragment {
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.hwlayout,container, false);
+        return inflater.inflate(R.layout.copy_layout,container, false);
     }
 
 
