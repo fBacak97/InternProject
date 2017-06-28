@@ -4,6 +4,8 @@ import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.content.Intent;
+import android.support.design.widget.TabLayout;
+import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
@@ -12,7 +14,6 @@ import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import java.util.ArrayList;
 
@@ -22,10 +23,6 @@ public class MainActivity extends AppCompatActivity {
     Fragment fragment;
     Toolbar toolbar;
     ActionBarDrawerToggle mDrawerToggle;
-    ArrayList<String> array;
-    ArrayList<String> array2;
-    ArrayAdapter<String> arrayAdapter;
-    ArrayAdapter<String> arrayAdapter2;
     FragmentManager fragmentManager;
     DrawerAdapter drawerAdapter;
     ArrayList<DrawerItem> drawerItemList;
@@ -38,40 +35,48 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+        ViewPager viewPager = (ViewPager)  findViewById(R.id.viewpager);
+        viewPager.setAdapter(new pagerAdapter(getSupportFragmentManager(),MainActivity.this));
 
-        /////////
+        TabLayout tabLayout = (TabLayout) findViewById(R.id.sliding_tabs);
+        tabLayout.setupWithViewPager(viewPager);
+        tabLayout.getTabAt(0).setIcon(R.drawable.icon);
+        tabLayout.getTabAt(1).setIcon(R.drawable.icon);
+        tabLayout.getTabAt(2).setIcon(R.drawable.icon);
+
+
+        // ---------- Navigation Drawer ------------
         drawerItemList = new ArrayList<>();
         departmentsList = new ArrayList<>();
 
-        drawerItemList.add(new DrawerItem("Home",R.drawable.icon));
-        drawerItemList.add(new DrawerItem("Departments",R.drawable.icon));
-        drawerItemList.add(new DrawerItem("Fire & Kindle",R.drawable.icon));
-        drawerItemList.add(new DrawerItem("Prime",R.drawable.icon));
-        drawerItemList.add(new DrawerItem("Your Orders",R.drawable.icon));
-        drawerItemList.add(new DrawerItem("Account",R.drawable.icon));
-        drawerItemList.add(new DrawerItem("Wishlist",R.drawable.icon));
-        drawerItemList.add(new DrawerItem("Today's Deals",R.drawable.icon));
-        drawerItemList.add(new DrawerItem("Recommendations",R.drawable.icon));
-        drawerItemList.add(new DrawerItem("Gift Cards",R.drawable.icon));
-        drawerItemList.add(new DrawerItem("Subscribe & Save",R.drawable.icon));
-        drawerItemList.add(new DrawerItem("Change Country",R.drawable.icon));
-        drawerItemList.add(new DrawerItem("Recently Viewed Items",R.drawable.icon));
-        drawerItemList.add(new DrawerItem("Contact Us",R.drawable.icon));
+        drawerItemList.add(new DrawerItem("\nHome",R.drawable.icon));
+        drawerItemList.add(new DrawerItem("\nDepartments",R.drawable.icon));
+        drawerItemList.add(new DrawerItem("\nFire & Kindle",R.drawable.icon));
+        drawerItemList.add(new DrawerItem("\nPrime",R.drawable.icon));
+        drawerItemList.add(new DrawerItem("\nYour Orders",R.drawable.icon));
+        drawerItemList.add(new DrawerItem("\nAccount",R.drawable.icon));
+        drawerItemList.add(new DrawerItem("\nWishlist",R.drawable.icon));
+        drawerItemList.add(new DrawerItem("\nToday's Deals",R.drawable.icon));
+        drawerItemList.add(new DrawerItem("\nRecommendations",R.drawable.icon));
+        drawerItemList.add(new DrawerItem("\nGift Cards",R.drawable.icon));
+        drawerItemList.add(new DrawerItem("\nSubscribe & Save",R.drawable.icon));
+        drawerItemList.add(new DrawerItem("\nChange Country",R.drawable.icon));
+        drawerItemList.add(new DrawerItem("\nRecently Viewed Items",R.drawable.icon));
+        drawerItemList.add(new DrawerItem("\nContact Us",R.drawable.icon));
 
-        departmentsList.add(new DrawerItem("Back",R.drawable.icon));
-        departmentsList.add(new DrawerItem("Books & Audiobooks",R.drawable.icon));
-        departmentsList.add(new DrawerItem("Movies & TV",R.drawable.icon));
-        departmentsList.add(new DrawerItem("Music",R.drawable.icon));
-        departmentsList.add(new DrawerItem("Apps & Video Games",R.drawable.icon));
-        departmentsList.add(new DrawerItem("Computers & Office",R.drawable.icon));
-        departmentsList.add(new DrawerItem("Electronics",R.drawable.icon));
-        departmentsList.add(new DrawerItem("Home, Garden & Tools",R.drawable.icon));
-        departmentsList.add(new DrawerItem("Grocery & Beverage",R.drawable.icon));
-        departmentsList.add(new DrawerItem("Health & Beauty",R.drawable.icon));
-        departmentsList.add(new DrawerItem("Toys, Kids & Baby",R.drawable.icon));
-        departmentsList.add(new DrawerItem("Clothing & Shoes",R.drawable.icon));
-        departmentsList.add(new DrawerItem("Sports & Outdoors",R.drawable.icon));
-
+        departmentsList.add(new DrawerItem("\nBack",R.drawable.icon));
+        departmentsList.add(new DrawerItem("\nBooks & Audiobooks",R.drawable.icon));
+        departmentsList.add(new DrawerItem("\nMovies & TV",R.drawable.icon));
+        departmentsList.add(new DrawerItem("\nMusic",R.drawable.icon));
+        departmentsList.add(new DrawerItem("\nApps & Video Games",R.drawable.icon));
+        departmentsList.add(new DrawerItem("\nComputers & Office",R.drawable.icon));
+        departmentsList.add(new DrawerItem("\nElectronics",R.drawable.icon));
+        departmentsList.add(new DrawerItem("\nHome, Garden & Tools",R.drawable.icon));
+        departmentsList.add(new DrawerItem("\nGrocery & Beverage",R.drawable.icon));
+        departmentsList.add(new DrawerItem("\nHealth & Beauty",R.drawable.icon));
+        departmentsList.add(new DrawerItem("\nToys, Kids & Baby",R.drawable.icon));
+        departmentsList.add(new DrawerItem("\nClothing & Shoes",R.drawable.icon));
+        departmentsList.add(new DrawerItem("\nSports & Outdoors",R.drawable.icon));
 
         drawerAdapter = new DrawerAdapter(this,drawerItemList);
         drawerListView = (ListView) findViewById(R.id.drawerListView);
@@ -83,6 +88,8 @@ public class MainActivity extends AppCompatActivity {
         drawerListView.addHeaderView(headerView);
         drawerListView.setOnItemClickListener(new DrawerItemClickListener());
 
+
+        //----- Toolbar ---------
         setupToolbar();
         getSupportActionBar().setDisplayHomeAsUpEnabled(false);
         getSupportActionBar().setHomeButtonEnabled(true);
@@ -90,6 +97,11 @@ public class MainActivity extends AppCompatActivity {
         drawerLayout.addDrawerListener(mDrawerToggle);
 
         fragmentManager = getFragmentManager();
+
+        fragment = new emptyFragment();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        fragmentTransaction.replace(R.id.productFragment,fragment).hide(fragment);
+        fragmentTransaction.commit();
 
         //ArrayList<String> choices = new ArrayList<>();
         //choices.add("Check your favorites");
@@ -114,11 +126,11 @@ public class MainActivity extends AppCompatActivity {
             /** Called when a drawer has settled in a completely closed state. */
             public void onDrawerClosed(View view) {
                 super.onDrawerClosed(view);
-                if(currentDrawerContent == "mainPage") {
+                if(currentDrawerContent.equals("mainPage")) {
                     drawerAdapter = new DrawerAdapter(getBaseContext(), drawerItemList);
                     drawerListView.setAdapter(drawerAdapter);
                 }
-                else if (currentDrawerContent == "departmentsTab"){
+                else if (currentDrawerContent.equals("departmentsTab")){
                     drawerAdapter = new DrawerAdapter(getBaseContext(), departmentsList);
                     drawerListView.setAdapter(drawerAdapter);
                 }
@@ -138,8 +150,8 @@ public class MainActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
-    public void selectItem(int position) {
-        if(currentDrawerContent == "departmentsTab") {
+    public void selectDrawerItem(int position) {
+        if(currentDrawerContent.equals("departmentsTab")) {
             switch (position){
                 case 1:
                     previousDrawerView();
@@ -147,7 +159,7 @@ public class MainActivity extends AppCompatActivity {
                 case 2:
                     fragment = new itemFragment();
                     FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-                    fragmentTransaction.replace(R.id.productFragment,fragment);
+                    fragmentTransaction.replace(R.id.productFragment,fragment).show(fragment);
                     fragmentTransaction.commit();
                     drawerLayout.closeDrawers();
                     break;
@@ -156,7 +168,7 @@ public class MainActivity extends AppCompatActivity {
             }
 
         }
-        else if(currentDrawerContent == "mainPage") {
+        else if(currentDrawerContent.equals("mainPage")) {
             switch(position){
                 case 1:
                     fragment = new emptyFragment();
@@ -176,10 +188,11 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+
     public void previousDrawerView(){
-        if (currentDrawerContent == "mainPage")
+        if (currentDrawerContent.equals("mainPage"))
             drawerLayout.closeDrawers();
-        else if (currentDrawerContent == "departmentsTab") {
+        else if (currentDrawerContent.equals("departmentsTab")) {
             drawerAdapter = new DrawerAdapter(this, drawerItemList);
             drawerListView.setAdapter(drawerAdapter);
             currentDrawerContent = "mainPage";
@@ -189,7 +202,8 @@ public class MainActivity extends AppCompatActivity {
     class DrawerItemClickListener implements ListView.OnItemClickListener {
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                selectItem(position);
+                selectDrawerItem(position);
         }
     }
+
 }
