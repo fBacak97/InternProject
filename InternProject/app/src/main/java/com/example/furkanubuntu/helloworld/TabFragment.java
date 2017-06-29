@@ -39,16 +39,11 @@ public class TabFragment extends Fragment {
         mPage = getArguments().getInt(ARG_PAGE);
 
         userTabSelectionItems = new ArrayList<>();
-        userTabSelectionItems.add(new DrawerItem("\nMy Profile", R.drawable.icon));
-        userTabSelectionItems.add(new DrawerItem("\nNotifications", R.drawable.icon));
-        userTabSelectionItems.add(new DrawerItem("\nMy Orders", R.drawable.icon));
-        userTabSelectionItems.add(new DrawerItem("\nWishlist", R.drawable.icon));
-        userTabSelectionItems.add(new DrawerItem("\nLocation", R.drawable.icon));
-        userTabSelectionItems.add(new DrawerItem("\nMy Profile", R.drawable.icon));
-        userTabSelectionItems.add(new DrawerItem("\nNotifications", R.drawable.icon));
-        userTabSelectionItems.add(new DrawerItem("\nMy Orders", R.drawable.icon));
-        userTabSelectionItems.add(new DrawerItem("\nWishlist", R.drawable.icon));
-        userTabSelectionItems.add(new DrawerItem("\nLocation", R.drawable.icon));
+        userTabSelectionItems.add(new DrawerItem(" My Profile", R.drawable.account));
+        userTabSelectionItems.add(new DrawerItem(" Notifications", R.drawable.notifications));
+        userTabSelectionItems.add(new DrawerItem(" My Orders", R.drawable.cart));
+        userTabSelectionItems.add(new DrawerItem(" Wishlist", R.drawable.favorite));
+        userTabSelectionItems.add(new DrawerItem(" Location", R.drawable.userlocation));
     }
 
     public void selectUserTabItem(int position){

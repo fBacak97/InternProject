@@ -4,6 +4,7 @@ import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.content.Intent;
+import android.graphics.drawable.GradientDrawable;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
@@ -14,6 +15,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import java.util.ArrayList;
 
@@ -40,43 +42,54 @@ public class MainActivity extends AppCompatActivity {
 
         TabLayout tabLayout = (TabLayout) findViewById(R.id.sliding_tabs);
         tabLayout.setupWithViewPager(viewPager);
-        tabLayout.getTabAt(0).setIcon(R.drawable.icon);
-        tabLayout.getTabAt(1).setIcon(R.drawable.icon);
-        tabLayout.getTabAt(2).setIcon(R.drawable.icon);
+        tabLayout.getTabAt(0).setIcon(R.drawable.home);
+        tabLayout.getTabAt(1).setIcon(R.drawable.favorite);
+        tabLayout.getTabAt(2).setIcon(R.drawable.account);
+
+        //Divider copy paste from stackOverflow study carefully!
+        View linearRoot = tabLayout.getChildAt(0);
+        if (linearRoot instanceof LinearLayout) {
+            ((LinearLayout) linearRoot).setShowDividers(LinearLayout.SHOW_DIVIDER_MIDDLE);
+            GradientDrawable drawable = new GradientDrawable();
+            drawable.setColor(getResources().getColor(R.color.white));
+            drawable.setSize(2, 1);
+            ((LinearLayout) linearRoot).setDividerPadding(10);
+            ((LinearLayout) linearRoot).setDividerDrawable(drawable);
+        }
 
 
         // ---------- Navigation Drawer ------------
         drawerItemList = new ArrayList<>();
         departmentsList = new ArrayList<>();
 
-        drawerItemList.add(new DrawerItem("\nHome",R.drawable.icon));
-        drawerItemList.add(new DrawerItem("\nDepartments",R.drawable.icon));
-        drawerItemList.add(new DrawerItem("\nFire & Kindle",R.drawable.icon));
-        drawerItemList.add(new DrawerItem("\nPrime",R.drawable.icon));
-        drawerItemList.add(new DrawerItem("\nYour Orders",R.drawable.icon));
-        drawerItemList.add(new DrawerItem("\nAccount",R.drawable.icon));
-        drawerItemList.add(new DrawerItem("\nWishlist",R.drawable.icon));
-        drawerItemList.add(new DrawerItem("\nToday's Deals",R.drawable.icon));
-        drawerItemList.add(new DrawerItem("\nRecommendations",R.drawable.icon));
-        drawerItemList.add(new DrawerItem("\nGift Cards",R.drawable.icon));
-        drawerItemList.add(new DrawerItem("\nSubscribe & Save",R.drawable.icon));
-        drawerItemList.add(new DrawerItem("\nChange Country",R.drawable.icon));
-        drawerItemList.add(new DrawerItem("\nRecently Viewed Items",R.drawable.icon));
-        drawerItemList.add(new DrawerItem("\nContact Us",R.drawable.icon));
+        drawerItemList.add(new DrawerItem(" Home",R.drawable.home));
+        drawerItemList.add(new DrawerItem(" Departments",R.drawable.store));
+        drawerItemList.add(new DrawerItem(" Fire & Kindle",R.drawable.temp));
+        drawerItemList.add(new DrawerItem(" Prime",R.drawable.temp));
+        drawerItemList.add(new DrawerItem(" Your Orders",R.drawable.cart));
+        drawerItemList.add(new DrawerItem(" Account",R.drawable.account));
+        drawerItemList.add(new DrawerItem(" Wishlist",R.drawable.favorite));
+        drawerItemList.add(new DrawerItem(" Today's Deals",R.drawable.money));
+        drawerItemList.add(new DrawerItem(" Recommendations",R.drawable.temp));
+        drawerItemList.add(new DrawerItem(" Gift Cards",R.drawable.giftcard));
+        drawerItemList.add(new DrawerItem(" Subscribe & Save",R.drawable.temp));
+        drawerItemList.add(new DrawerItem(" Change Country",R.drawable.userlocation));
+        drawerItemList.add(new DrawerItem(" Recently Viewed Items",R.drawable.temp));
+        drawerItemList.add(new DrawerItem(" Contact Us",R.drawable.temp));
 
-        departmentsList.add(new DrawerItem("\nBack",R.drawable.icon));
-        departmentsList.add(new DrawerItem("\nBooks & Audiobooks",R.drawable.icon));
-        departmentsList.add(new DrawerItem("\nMovies & TV",R.drawable.icon));
-        departmentsList.add(new DrawerItem("\nMusic",R.drawable.icon));
-        departmentsList.add(new DrawerItem("\nApps & Video Games",R.drawable.icon));
-        departmentsList.add(new DrawerItem("\nComputers & Office",R.drawable.icon));
-        departmentsList.add(new DrawerItem("\nElectronics",R.drawable.icon));
-        departmentsList.add(new DrawerItem("\nHome, Garden & Tools",R.drawable.icon));
-        departmentsList.add(new DrawerItem("\nGrocery & Beverage",R.drawable.icon));
-        departmentsList.add(new DrawerItem("\nHealth & Beauty",R.drawable.icon));
-        departmentsList.add(new DrawerItem("\nToys, Kids & Baby",R.drawable.icon));
-        departmentsList.add(new DrawerItem("\nClothing & Shoes",R.drawable.icon));
-        departmentsList.add(new DrawerItem("\nSports & Outdoors",R.drawable.icon));
+        departmentsList.add(new DrawerItem(" Back",R.drawable.back));
+        departmentsList.add(new DrawerItem(" Books & Audiobooks",R.drawable.book));
+        departmentsList.add(new DrawerItem(" Movies & TV",R.drawable.movies));
+        departmentsList.add(new DrawerItem(" Music",R.drawable.music));
+        departmentsList.add(new DrawerItem(" Apps & Video Games",R.drawable.game));
+        departmentsList.add(new DrawerItem(" Computers & Office",R.drawable.laptop));
+        departmentsList.add(new DrawerItem(" Electronics",R.drawable.electronics));
+        departmentsList.add(new DrawerItem(" Home, Garden & Tools",R.drawable.outdoors));
+        departmentsList.add(new DrawerItem(" Grocery & Beverage",R.drawable.temp));
+        departmentsList.add(new DrawerItem(" Health & Beauty",R.drawable.temp));
+        departmentsList.add(new DrawerItem(" Toys, Kids & Baby",R.drawable.children));
+        departmentsList.add(new DrawerItem(" Clothing & Shoes",R.drawable.temp));
+        departmentsList.add(new DrawerItem(" Sports & Outdoors",R.drawable.sports));
 
         drawerAdapter = new DrawerAdapter(this,drawerItemList);
         drawerListView = (ListView) findViewById(R.id.drawerListView);

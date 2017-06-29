@@ -30,10 +30,10 @@
             <TextView
                 android:id="@+id/drawer_itemName"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceLarge"
-
-                />
+                android:layout_height="48dp"
+                android:textSize="22sp"
+                android:textColor="#388E3C"
+                android:gravity="center_vertical|start"/>
         </LinearLayout>
 
         <View
