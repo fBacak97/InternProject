@@ -32,6 +32,7 @@ public class MainActivity extends AppCompatActivity {
     ArrayList<DrawerItem> drawerItemList;
     ArrayList<DrawerItem> departmentsList;
     String currentDrawerContent = "mainPage";
+    int choice;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -113,7 +114,7 @@ public class MainActivity extends AppCompatActivity {
 
         fragmentManager = getFragmentManager();
 
-        fragment = new itemlistFragment();
+        fragment = itemlistFragment.newInstance(4);
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         fragmentTransaction.replace(R.id.productFragment,fragment).hide(fragment);
         fragmentTransaction.commit();
@@ -171,10 +172,27 @@ public class MainActivity extends AppCompatActivity {
                     previousDrawerView();
                     break;
                 case 2:
-                    fragment = new itemlistFragment();
+                    choice = 2;
+                    fragment = itemlistFragment.newInstance(2);
                     FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
                     fragmentTransaction.replace(R.id.productFragment,fragment).show(fragment);
                     fragmentTransaction.commit();
+                    drawerLayout.closeDrawers();
+                    break;
+                case 3:
+                    choice = 3;
+                    fragment = itemlistFragment.newInstance(3);
+                    FragmentTransaction fragmentTransaction2 = fragmentManager.beginTransaction();
+                    fragmentTransaction2.replace(R.id.productFragment,fragment).show(fragment);
+                    fragmentTransaction2.commit();
+                    drawerLayout.closeDrawers();
+                    break;
+                case 4:
+                    choice = 4;
+                    fragment = itemlistFragment.newInstance(4);
+                    FragmentTransaction fragmentTransaction3 = fragmentManager.beginTransaction();
+                    fragmentTransaction3.replace(R.id.productFragment,fragment).show(fragment);
+                    fragmentTransaction3.commit();
                     drawerLayout.closeDrawers();
                     break;
                 default:
@@ -218,6 +236,10 @@ public class MainActivity extends AppCompatActivity {
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 selectDrawerItem(position);
         }
+    }
+
+    public int getChoice(){
+        return choice;
     }
 
 }
