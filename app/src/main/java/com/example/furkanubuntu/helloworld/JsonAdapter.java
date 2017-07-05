@@ -2,6 +2,7 @@ package com.example.furkanubuntu.helloworld;
 
 import android.content.ClipData;
 import android.content.Context;
+import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,7 +26,6 @@ public class JsonAdapter extends ArrayAdapter<JsonItemOnSale> {
     public View getView(int position, View convertView, ViewGroup parent)
     {
         JsonItemOnSale anItem = getItem(position);
-        //itemlistFragment itemlistFragment = new itemlistFragment();
 
         if(convertView == null){
             convertView = LayoutInflater.from(getContext()).inflate(R.layout.hwlayout,parent,false);
@@ -40,8 +40,7 @@ public class JsonAdapter extends ArrayAdapter<JsonItemOnSale> {
         price.setText(anItem.price);
         description.setText(anItem.description);
         Picasso.with(convertView.getContext()).load(anItem.jsonLink).into(productPic);
-
-        //productPic.setImageResource(anItem.jsonLink);
+        //productPic.setAdapter(new imageScrollAdapter(anItem.jsonLink,getContext()));
 
         return convertView;
     }

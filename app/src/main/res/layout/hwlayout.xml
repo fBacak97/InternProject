@@ -11,7 +11,9 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
-        android:background="#F0F4C3" />
+        android:background="#F0F4C3"
+        android:clickable="true"
+        android:onClick="openProductActivity" />
 
     <TextView
         android:id="@+id/discountText"
@@ -25,7 +27,9 @@
         android:rotation="-45"
         android:text="%45"
         android:textColor="#000000"
-        android:textSize="25sp"></TextView>
+        android:textSize="25sp">
+
+    </TextView>
 
     <TextView
         android:id="@+id/priceText"

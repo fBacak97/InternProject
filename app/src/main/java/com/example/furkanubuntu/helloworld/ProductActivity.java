@@ -1,72 +1,49 @@
 package com.example.furkanubuntu.helloworld;
 
-import android.app.Fragment;
+
 import android.app.FragmentManager;
-import android.app.FragmentTransaction;
 import android.content.Intent;
-import android.graphics.drawable.GradientDrawable;
-import android.support.design.widget.TabLayout;
-import android.support.v4.view.ViewPager;
+import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.SearchView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
 
+/**
+ * Created by furkanubuntu on 7/4/17.
+ */
 
-public class MainActivity extends AppCompatActivity {
+public class ProductActivity extends AppCompatActivity {
+
     ListView drawerListView;
-    DrawerLayout drawerLayout;
-    Fragment fragment;
+    DrawerLayout productDrawerLayout;
     Toolbar toolbar;
     ActionBarDrawerToggle mDrawerToggle;
     FragmentManager fragmentManager;
     DrawerAdapter drawerAdapter;
     ArrayList<DrawerItem> drawerItemList;
     ArrayList<DrawerItem> departmentsList;
-    String currentDrawerContent = "mainPage";
-    SearchView searchView;
+    String currentDrawerContent = "departmentsTab";
+    TextView header;
+    TextView description;
+
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.product_activity);
 
-        drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-        ViewPager viewPager = (ViewPager)  findViewById(R.id.viewpager);
-        viewPager.setAdapter(new pagerAdapter(getSupportFragmentManager(),MainActivity.this));
-        searchView = (SearchView) findViewById(R.id.searchBar);
-        searchView.setVisibility(View.INVISIBLE);
-
-        TabLayout tabLayout = (TabLayout) findViewById(R.id.sliding_tabs);
-        tabLayout.setupWithViewPager(viewPager);
-        tabLayout.getTabAt(0).setIcon(R.drawable.home);
-        tabLayout.getTabAt(1).setIcon(R.drawable.favorite);
-        tabLayout.getTabAt(2).setIcon(R.drawable.account);
-
-        //Divider copy paste from stackOverflow study carefully!
-        View linearRoot = tabLayout.getChildAt(0);
-        if (linearRoot instanceof LinearLayout) {
-            ((LinearLayout) linearRoot).setShowDividers(LinearLayout.SHOW_DIVIDER_MIDDLE);
-            GradientDrawable drawable = new GradientDrawable();
-            drawable.setColor(getResources().getColor(R.color.white));
-            drawable.setSize(2, 1);
-            ((LinearLayout) linearRoot).setDividerPadding(10);
-            ((LinearLayout) linearRoot).setDividerDrawable(drawable);
-        }
-
-
-        // ---------- Navigation Drawer ------------
+        header = (TextView) findViewById(R.id.header);
+        description = (TextView) findViewById(R.id.product_infoText);
+        productDrawerLayout = (DrawerLayout) findViewById(R.id.product_drawer_layout);
         drawerItemList = new ArrayList<>();
         departmentsList = new ArrayList<>();
 
@@ -99,8 +76,8 @@ public class MainActivity extends AppCompatActivity {
         departmentsList.add(new DrawerItem(" Clothing & Shoes",R.drawable.temp));
         departmentsList.add(new DrawerItem(" Sports & Outdoors",R.drawable.sports));
 
-        drawerAdapter = new DrawerAdapter(this,drawerItemList);
-        drawerListView = (ListView) findViewById(R.id.drawerListView);
+        drawerAdapter = new DrawerAdapter(this,departmentsList);
+        drawerListView = (ListView) findViewById(R.id.secondDrawerListView);
         drawerListView.setAdapter(drawerAdapter);
 
         LayoutInflater inflater = LayoutInflater.from(getApplicationContext());
@@ -109,44 +86,26 @@ public class MainActivity extends AppCompatActivity {
         drawerListView.addHeaderView(headerView);
         drawerListView.setOnItemClickListener(new DrawerItemClickListener());
 
-
-        //----- Toolbar ---------
         setupToolbar();
         getSupportActionBar().setDisplayHomeAsUpEnabled(false);
         getSupportActionBar().setHomeButtonEnabled(true);
         setupDrawerToggle();
-        drawerLayout.addDrawerListener(mDrawerToggle);
+        productDrawerLayout.addDrawerListener(mDrawerToggle);
 
         fragmentManager = getFragmentManager();
 
-        fragment = itemlistFragment.newInstance(2);
-        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        fragmentTransaction.replace(R.id.productFragment,fragment).hide(fragment);
-        fragmentTransaction.commit();
+        Intent intent = getIntent();
+        header.setText(intent.getStringExtra(Intent.EXTRA_TEXT));
+        description.setText(intent.getStringExtra(Intent.EXTRA_TEXT));
     }
 
-    @Override
-    protected void onResume() {
-        if(getIntent().getIntExtra("buttonNo",0) > 0){
-            int buttonNo = (getIntent().getIntExtra("buttonNo",0));
-            Log.d("mytag","" + buttonNo);
-            fragment = itemlistFragment.newInstance(buttonNo);
-            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-            fragmentTransaction.replace(R.id.productFragment, fragment).show(fragment);
-            fragmentTransaction.commit();
-            searchView.setVisibility(View.VISIBLE);
-        }
-        super.onResume();
-    }
-
-    // Below 2 methods study them carefully!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     public void setupToolbar(){
-        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar = (Toolbar) findViewById(R.id.toolbar_no_search);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
     }
     public void setupDrawerToggle(){
-        mDrawerToggle = new ActionBarDrawerToggle(this,drawerLayout,toolbar,R.string.drawerTitle, R.string.drawerTitle){
+        mDrawerToggle = new ActionBarDrawerToggle(this,productDrawerLayout,toolbar,R.string.drawerTitle, R.string.drawerTitle){
 
             /** Called when a drawer has settled in a completely closed state. */
             public void onDrawerClosed(View view) {
@@ -177,22 +136,17 @@ public class MainActivity extends AppCompatActivity {
                 previousDrawerView();
             }
             else {
-                fragment = itemlistFragment.newInstance(position);
-                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-                fragmentTransaction.replace(R.id.productFragment, fragment).show(fragment);
-                fragmentTransaction.commit();
-                searchView.setVisibility(View.VISIBLE);
-                drawerLayout.closeDrawers();
+                Intent intent = new Intent(this,MainActivity.class);
+                intent.putExtra("buttonNo",position);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                startActivity(intent);
             }
         }
         else if(currentDrawerContent.equals("mainPage")) {
             switch(position){
                 case 1:
-                    fragment = new emptyFragment();
-                    FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-                    fragmentTransaction.replace(R.id.productFragment,fragment);
-                    fragmentTransaction.commit();
                     previousDrawerView();
+                    startActivity(new Intent(this, MainActivity.class));
                     break;
                 case 2:
                     drawerAdapter = new DrawerAdapter(this, departmentsList);
@@ -207,9 +161,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void previousDrawerView(){
         if (currentDrawerContent.equals("mainPage")) {
-            drawerLayout.closeDrawers();
-            Log.d("MYTAG","Make invisible");
-            searchView.setVisibility(View.INVISIBLE);
+            productDrawerLayout.closeDrawers();
         }
         else if (currentDrawerContent.equals("departmentsTab")) {
             drawerAdapter = new DrawerAdapter(this, drawerItemList);
@@ -218,18 +170,11 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public void openProductActivity(View view){
-        Intent intent = new Intent(this,ProductActivity.class);
-        TextView info = (TextView) findViewById(R.id.infoText);
-        String infoText = info.getText().toString();
-        intent.putExtra(Intent.EXTRA_TEXT,infoText);
-        startActivity(intent);
-    }
 
     class DrawerItemClickListener implements ListView.OnItemClickListener {
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                selectDrawerItem(position);
+            selectDrawerItem(position);
         }
     }
 

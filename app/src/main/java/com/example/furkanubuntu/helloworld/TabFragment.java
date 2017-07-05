@@ -1,11 +1,15 @@
 package com.example.furkanubuntu.helloworld;
 
+import android.media.Image;
 import android.os.Bundle;
+import android.provider.ContactsContract;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -19,8 +23,11 @@ import java.util.ArrayList;
 public class TabFragment extends Fragment {
     public static final String ARG_PAGE = "ARG_PAGE";
     ArrayList<DrawerItem> userTabSelectionItems;
+    ArrayList<JsonItemOnSale> wishlistTabSelectionItems;
     DrawerAdapter userTabAdapter;
+    ListView wishlistTabListView;
     ListView userTabListView;
+    WishlistAdapter wishlistTabAdapter;
     View view;
 
     private int mPage;
@@ -44,6 +51,12 @@ public class TabFragment extends Fragment {
         userTabSelectionItems.add(new DrawerItem(" My Orders", R.drawable.cart));
         userTabSelectionItems.add(new DrawerItem(" Wishlist", R.drawable.favorite));
         userTabSelectionItems.add(new DrawerItem(" Location", R.drawable.userlocation));
+
+        wishlistTabSelectionItems = new ArrayList<>();
+        wishlistTabSelectionItems.add(new JsonItemOnSale("a","a","abc","https://images-na.ssl-images-amazon.com/images/G/01/img16/toys/content-grid/" +
+                "character-tile/1014587_us_toys_favorite_characters_q4__shop-by-tile_416x560_pokemon.jpg"));
+        wishlistTabSelectionItems.add(new JsonItemOnSale("a","a","abc2","https://images-na.ssl-images-amazon.com/images/G/01/img16/toys/content-grid/" +
+                "character-tile/1014587_us_toys_favorite_characters_q4__shop-by-tile_416x560_pokemon.jpg"));
     }
 
     public void selectUserTabItem(int position){
@@ -60,7 +73,12 @@ public class TabFragment extends Fragment {
     class UserTabItemClickListener implements ListView.OnItemClickListener {
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-            selectUserTabItem(position);
+            if(mPage == 2) {
+                selectUserTabItem(position);
+            }
+            else if (mPage == 1){
+
+            }
         }
     }
 
@@ -69,10 +87,17 @@ public class TabFragment extends Fragment {
                              Bundle savedInstanceState) {
         if(mPage == 2) {
             view = inflater.inflate(R.layout.account_tab_fragment, container, false);
-            userTabAdapter = new DrawerAdapter(getContext(), userTabSelectionItems);
+            userTabAdapter = new DrawerAdapter(view.getContext(), userTabSelectionItems);
             userTabListView = (ListView) view.findViewById(R.id.accountTabSelections);
             userTabListView.setAdapter(userTabAdapter);
             userTabListView.setOnItemClickListener(new UserTabItemClickListener());
+        }
+        else if (mPage == 1){
+            view = inflater.inflate(R.layout.wishlist_tab_fragment,container,false);
+            wishlistTabAdapter = new WishlistAdapter(view.getContext(),wishlistTabSelectionItems);
+            wishlistTabListView = (ListView) view.findViewById(R.id.wishlistTabSelections);
+            wishlistTabListView.setAdapter(wishlistTabAdapter);
+            wishlistTabListView.setOnItemClickListener(new UserTabItemClickListener());
         }
         return view;
     }

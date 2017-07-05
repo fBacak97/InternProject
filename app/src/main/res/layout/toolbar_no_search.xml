@@ -2,7 +2,7 @@
 
 <android.support.v7.widget.Toolbar xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:local="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/toolbar"
+    android:id="@+id/toolbar_no_search"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:minHeight="?attr/actionBarSize"
@@ -11,22 +11,10 @@
     local:popupTheme="@style/ThemeOverlay.AppCompat.Light" >
 
     <TextView
-        android:id="@+id/mainHeader"
+        android:id="@+id/header"
+        android:text=""
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/app_name"
         android:gravity="center_vertical|start"/>
 
-    <SearchView
-        android:id="@+id/searchBar"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:background="#C8E6C9"
-        android:queryHint="Search for items"
-        android:layout_marginLeft="10dp"
-        android:layout_marginStart="10dp"
-        >
-
-    </SearchView>
-
-    </android.support.v7.widget.Toolbar>
+</android.support.v7.widget.Toolbar>
