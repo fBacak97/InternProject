@@ -1,6 +1,7 @@
 package com.example.furkanubuntu.helloworld;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,10 +16,11 @@ import java.util.ArrayList;
  * Created by furkanubuntu on 6/21/17.
  */
 
-public class RealAdapter extends ArrayAdapter<ItemOnSale> {
-    public RealAdapter(Context context, ArrayList<ItemOnSale> goods){
+class RealAdapter extends ArrayAdapter<ItemOnSale> {
+    RealAdapter(Context context, ArrayList<ItemOnSale> goods){
         super(context,0,goods);
     }
+    @NonNull
     @Override
     public View getView(int position, View convertView, ViewGroup parent)
     {

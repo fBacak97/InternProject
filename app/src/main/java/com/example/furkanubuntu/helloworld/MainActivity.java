@@ -3,7 +3,6 @@ package com.example.furkanubuntu.helloworld;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
-import android.content.Intent;
 import android.graphics.drawable.GradientDrawable;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
@@ -19,7 +18,6 @@ import android.widget.AdapterView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.SearchView;
-import android.widget.TextView;
 
 import java.util.ArrayList;
 
@@ -218,15 +216,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public void openProductActivity(View view){
-        Intent intent = new Intent(this,ProductActivity.class);
-        TextView info = (TextView) findViewById(R.id.infoText);
-        String infoText = info.getText().toString();
-        intent.putExtra(Intent.EXTRA_TEXT,infoText);
-        startActivity(intent);
-    }
-
-    class DrawerItemClickListener implements ListView.OnItemClickListener {
+    private class DrawerItemClickListener implements ListView.OnItemClickListener {
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 selectDrawerItem(position);

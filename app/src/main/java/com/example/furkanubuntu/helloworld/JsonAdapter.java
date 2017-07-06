@@ -1,8 +1,7 @@
 package com.example.furkanubuntu.helloworld;
 
-import android.content.ClipData;
 import android.content.Context;
-import android.support.v4.view.ViewPager;
+import android.support.annotation.NonNull;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,10 +17,11 @@ import java.util.ArrayList;
  * Created by furkanubuntu on 6/30/17.
  */
 
-public class JsonAdapter extends ArrayAdapter<JsonItemOnSale> {
-    public JsonAdapter(Context context, ArrayList<JsonItemOnSale> goods){
+class JsonAdapter extends ArrayAdapter<JsonItemOnSale> {
+    JsonAdapter(Context context, ArrayList<JsonItemOnSale> goods){
         super(context,0,goods);
     }
+    @NonNull
     @Override
     public View getView(int position, View convertView, ViewGroup parent)
     {

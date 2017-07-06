@@ -1,9 +1,8 @@
 package com.example.furkanubuntu.helloworld;
 
-import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentManager;
-import android.content.Context;
+import android.content.Intent;
 import android.graphics.PorterDuff;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -14,6 +13,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
+import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
@@ -43,7 +43,7 @@ public class itemlistFragment extends Fragment {
     FragmentManager fragmentManager;
     public static final String choiceString = "ARG_PAGE";
     //String imageSize = "Lets see i think i will need this later"; //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    String apiKey = "AIzaSyAwL2u9ByNL9coBouyJBjtx3UXmb_mtC50";//"AIzaSyCFrT2Vp7pqSBbTecdlzO_bpNkj52iZ04Y";//"AIzaSyCj4Ok-oVrrVJassta4kX1dugbtGZTxD9A";
+    String apiKey = "AIzaSyCFrT2Vp7pqSBbTecdlzO_bpNkj52iZ04Y"; //"AIzaSyAwL2u9ByNL9coBouyJBjtx3UXmb_mtC50";//"//"AIzaSyCj4Ok-oVrrVJassta4kX1dugbtGZTxD9A";
     String cx = "000741119430587044101:2fdfbkejafg";
     String fileType = "jpg";
     String searchType = "image";
@@ -69,18 +69,20 @@ public class itemlistFragment extends Fragment {
 
         switch (getArguments().getInt(choiceString)) {
             case 2:
-                arrayOfGoods.add(new JsonItemOnSale("%35", "450$", "Iphone 7 Real Good Condition", "https://s-media-cache-ak0.pinimg.com/736x/4a/70/b4/4a70b4c3b5d26902c8737c81809f2a02.jpg"));
-                arrayOfGoods.add(new JsonItemOnSale("%45", "250$", "Samsung Note 3 Only Bluetooth is ", "https://s-media-cache-ak0.pinimg.com/736x/4a/70/b4/4a70b4c3b5d26902c8737c81809f2a02.jpg"));
-                arrayOfGoods.add(new JsonItemOnSale("%20", "200$", "Xperia Z4 Second Hand", "https://s-media-cache-ak0.pinimg.com/736x/4a/70/b4/4a70b4c3b5d26902c8737c81809f2a02.jpg"));
-                arrayOfGoods.add(new JsonItemOnSale("%35", "450$", "Iphone 7 Real Good Conditionss", "https://s-media-cache-ak0.pinimg.com/736x/4a/70/b4/4a70b4c3b5d26902c8737c81809f2a02.jpg"));
+                searchCriteria = "books+aud";
+                combinedUrl = "https://www.googleapis.com/customsearch/v1?key=" + apiKey + "&cx=" + cx + "&q=" + searchCriteria
+                        + "&searchType=" + searchType + "&fileType=" + fileType + "&alt=json";
+                //new myASyncTask(combinedUrl).execute();
+                myASyncTask aSyncTask = new myASyncTask(combinedUrl);
+                aSyncTask.execute();
                 break;
             case 3:
                 searchCriteria = "movieposters";
                 combinedUrl = "https://www.googleapis.com/customsearch/v1?key=" + apiKey + "&cx=" + cx + "&q=" + searchCriteria
                         + "&searchType=" + searchType + "&fileType=" + fileType + "&alt=json";
                 //new myASyncTask(combinedUrl).execute();
-                myASyncTask aSyncTask = new myASyncTask(combinedUrl);
-                aSyncTask.execute();
+                myASyncTask aSyncTask1 = new myASyncTask(combinedUrl);
+                aSyncTask1.execute();
                 break;
             case 4:
                 searchCriteria = "bestalbumcovers";
@@ -179,6 +181,7 @@ public class itemlistFragment extends Fragment {
         progressBar.getIndeterminateDrawable()
                 .setColorFilter(ContextCompat.getColor(view.getContext(), R.color.black), PorterDuff.Mode.SRC_IN );
         listView = (ListView) view.findViewById(R.id.item_listview);
+        listView.setOnItemClickListener(new ItemClickListener());
         listView.setOnScrollListener(new AbsListView.OnScrollListener() {
 
             @Override
@@ -206,11 +209,11 @@ public class itemlistFragment extends Fragment {
         return view;
     }
 
-    public class myASyncTask extends AsyncTask {
+    private class myASyncTask extends AsyncTask {
         String urlString;
         int exceptionNo;
 
-        public myASyncTask(String urlString) {
+        myASyncTask(String urlString) {
             super();
             this.urlString = urlString;
         }
@@ -257,7 +260,7 @@ public class itemlistFragment extends Fragment {
                     jsonArray = jsonObject.getJSONArray("items");
                     for (int i = 0; i < 10; i++) {
                         Log.d("MYTAG", jsonArray.getJSONObject(i).getString("link"));
-                        arrayOfGoods.add(new JsonItemOnSale("%35", "450$", "Iphone 7 Real Good Conditionss", jsonArray.getJSONObject(i).getString("link")));
+                        arrayOfGoods.add(new JsonItemOnSale("%35", "450$", jsonArray.getJSONObject(i).getString("title"), jsonArray.getJSONObject(i).getString("link")));
                     }
 
                 } catch (JSONException e) {
@@ -271,14 +274,28 @@ public class itemlistFragment extends Fragment {
         protected void onPostExecute(Object o) {
             super.onPostExecute(o);
             if (o == null) {
-                //CharSequence text = "Returned null";
-                //int duration = Toast.LENGTH_SHORT;
+                CharSequence text = "Returned null";
+                int duration = Toast.LENGTH_SHORT;
 
-               // Toast toast = Toast.makeText(getContext(), text, duration);
-                //toast.show();
+                Toast toast = Toast.makeText(getContext(), text, duration);
+                toast.show();
             }
             adapter.notifyDataSetChanged();
             progressBar.setVisibility(View.GONE);
+        }
+    }
+
+    protected void startProductActivity(int position){
+        Intent intent = new Intent(getActivity(),ProductActivity.class);
+        intent.putExtra(Intent.EXTRA_TEXT,arrayOfGoods.get(position).jsonLink);
+        intent.putExtra(Intent.EXTRA_TITLE,searchCriteria);
+        getActivity().startActivity(intent);
+    }
+
+    private class ItemClickListener implements ListView.OnItemClickListener {
+        @Override
+        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+            startProductActivity(position);
         }
     }
 

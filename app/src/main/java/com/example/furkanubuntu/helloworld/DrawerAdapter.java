@@ -16,10 +16,10 @@ import java.util.ArrayList;
  * Created by furkanubuntu on 6/23/17.
  */
 
-public class DrawerAdapter extends ArrayAdapter<DrawerItem> {
+class DrawerAdapter extends ArrayAdapter<DrawerItem> {
     public DrawerItem drawerItem;
 
-    public DrawerAdapter(Context context, ArrayList<DrawerItem> choices){
+    DrawerAdapter(Context context, ArrayList<DrawerItem> choices){
         super(context,0,choices);
     }
 

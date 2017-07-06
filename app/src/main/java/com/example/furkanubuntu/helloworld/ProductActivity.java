@@ -3,19 +3,34 @@ package com.example.furkanubuntu.helloworld;
 
 import android.app.FragmentManager;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
+import java.util.Random;
 
 /**
  * Created by furkanubuntu on 7/4/17.
@@ -34,6 +49,17 @@ public class ProductActivity extends AppCompatActivity {
     String currentDrawerContent = "departmentsTab";
     TextView header;
     TextView description;
+    imageScrollAdapter adapter;
+    String apiKey = "AIzaSyCFrT2Vp7pqSBbTecdlzO_bpNkj52iZ04Y";//"AIzaSyAwL2u9ByNL9coBouyJBjtx3UXmb_mtC50";//"AIzaSyCj4Ok-oVrrVJassta4kX1dugbtGZTxD9A";
+    String cx = "000741119430587044101:2fdfbkejafg";
+    int randomNo;
+    String start;
+    String fileType = "jpg";
+    String searchType = "image";
+    String searchCriteria;
+    String combinedUrl;
+    ArrayList<String> linkArray;
+    ViewPager viewPager;
 
 
     @Override
@@ -41,11 +67,16 @@ public class ProductActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.product_activity);
 
+        viewPager = (ViewPager) findViewById(R.id.productSlider);
         header = (TextView) findViewById(R.id.header);
         description = (TextView) findViewById(R.id.product_infoText);
         productDrawerLayout = (DrawerLayout) findViewById(R.id.product_drawer_layout);
         drawerItemList = new ArrayList<>();
         departmentsList = new ArrayList<>();
+        linkArray = new ArrayList<>();
+        Random randomGen = new Random();
+        randomNo = randomGen.nextInt(21) + 5;
+        start = "" + randomNo;
 
         drawerItemList.add(new DrawerItem(" Home",R.drawable.home));
         drawerItemList.add(new DrawerItem(" Departments",R.drawable.store));
@@ -95,8 +126,16 @@ public class ProductActivity extends AppCompatActivity {
         fragmentManager = getFragmentManager();
 
         Intent intent = getIntent();
-        header.setText(intent.getStringExtra(Intent.EXTRA_TEXT));
-        description.setText(intent.getStringExtra(Intent.EXTRA_TEXT));
+        linkArray.add(intent.getStringExtra(Intent.EXTRA_TEXT));
+        searchCriteria = intent.getStringExtra(Intent.EXTRA_TITLE);
+        combinedUrl = "https://www.googleapis.com/customsearch/v1?key=" + apiKey + "&cx=" + cx + "&q=" + searchCriteria
+                + "&searchType=" + searchType + "&start=" + start + "&fileType=" + fileType + "&alt=json";
+        UniqueASyncTask aSyncTask = new UniqueASyncTask(combinedUrl);
+        aSyncTask.execute();
+
+        //adapter = new imageScrollAdapter(linkArray,getBaseContext());
+        //viewPager.setAdapter(adapter);
+
     }
 
     public void setupToolbar(){
@@ -171,10 +210,93 @@ public class ProductActivity extends AppCompatActivity {
     }
 
 
-    class DrawerItemClickListener implements ListView.OnItemClickListener {
+    private class DrawerItemClickListener implements ListView.OnItemClickListener {
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
             selectDrawerItem(position);
+        }
+    }
+
+    private class UniqueASyncTask extends AsyncTask {
+        String urlString;
+        int exceptionNo;
+
+        private UniqueASyncTask(String urlString) {
+            super();
+            this.urlString = urlString;
+        }
+
+        @Override
+        protected Object doInBackground(Object[] objects) {
+            URL url = null;
+            StringBuilder builder = null;
+            JSONArray jsonArray;
+
+            if(urlString.contains(" ")){
+                        urlString = urlString.replaceAll("\\s", "");
+            }
+
+            try {
+                url = new URL(urlString);
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            }
+
+            try {
+                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                connection.connect();
+
+                if (connection.getResponseCode() != 200) {
+                    throw new IOException(connection.getResponseMessage());
+                }
+
+                String line;
+                BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+                builder = new StringBuilder();
+                while ((line = reader.readLine()) != null) {
+                    builder.append(line);
+                }
+            } catch (IOException e) {
+                exceptionNo = 1;exceptionNo = 1;
+                e.printStackTrace();
+            }
+            JSONObject jsonObject = null;
+
+            try {
+
+                jsonObject = new JSONObject(builder.toString());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            if (jsonObject != null) {
+                try {
+                    jsonArray = jsonObject.getJSONArray("items");
+                    for (int i = 0; i < 3; i++) {
+                        linkArray.add(jsonArray.getJSONObject(i).getString("link"));
+                    }
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+            return jsonObject;
+        }
+
+        @Override
+        protected void onPostExecute(Object o) {
+            super.onPostExecute(o);
+
+            adapter = new imageScrollAdapter(linkArray,getBaseContext());
+            viewPager.setAdapter(adapter);
+            if (o == null) {
+                CharSequence text = "Returned null";
+                int duration = Toast.LENGTH_SHORT;
+
+                Toast toast = Toast.makeText(getBaseContext(), text, duration);
+                toast.show();
+            }
+            adapter.notifyDataSetChanged();
         }
     }
 

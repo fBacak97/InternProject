@@ -1,15 +1,11 @@
 package com.example.furkanubuntu.helloworld;
 
-import android.media.Image;
 import android.os.Bundle;
-import android.provider.ContactsContract;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -70,7 +66,7 @@ public class TabFragment extends Fragment {
         }
     }
 
-    class UserTabItemClickListener implements ListView.OnItemClickListener {
+    private class UserTabItemClickListener implements ListView.OnItemClickListener {
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
             if(mPage == 2) {

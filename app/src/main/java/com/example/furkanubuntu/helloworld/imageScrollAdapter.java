@@ -9,18 +9,21 @@ import android.widget.ImageView;
 
 import com.squareup.picasso.Picasso;
 
+import java.util.ArrayList;
+
 /**
  * Created by furkanubuntu on 7/4/17.
  */
 
-public class imageScrollAdapter extends PagerAdapter {
-    String url;
+class imageScrollAdapter extends PagerAdapter {
+    ArrayList<String> urlArray;
     Context context;
-    final int PIC_COUNT = 3;
+    final int PIC_COUNT = 4;
+    ImageView imageView;
 
-    public imageScrollAdapter(String url,Context context){
+    imageScrollAdapter(ArrayList<String> urlArray, Context context){
         super();
-        this.url = url;
+        this.urlArray = urlArray;
         this.context = context;
     }
 
@@ -31,12 +34,10 @@ public class imageScrollAdapter extends PagerAdapter {
 
     @Override
     public Object instantiateItem(ViewGroup container, int position) {
-        ImageView imageView = new ImageView(context);
-
-        Picasso.with(context).load(url).into(imageView);
-
-        ((ViewPager) container).addView(imageView, 0);
-
+        imageView = new ImageView(context);
+        String tempUrl = urlArray.get(position);
+        Picasso.with(context).load(tempUrl).into(imageView);
+        ((ViewPager) container).addView(imageView);
         return imageView;
     }
 

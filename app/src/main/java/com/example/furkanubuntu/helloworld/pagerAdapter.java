@@ -9,12 +9,12 @@ import android.support.v4.app.FragmentPagerAdapter;
  * Created by furkanubuntu on 6/28/17.
  */
 
-public class pagerAdapter extends FragmentPagerAdapter {
+class pagerAdapter extends FragmentPagerAdapter {
     final int PAGE_COUNT = 3;
     private String tabTitles[] = new String[] { "Home", "Wishlist", "Account" };
     private Context context;
 
-    public pagerAdapter(FragmentManager fm, Context context) {
+    pagerAdapter(FragmentManager fm, Context context) {
         super(fm);
         this.context = context;
     }
@@ -31,7 +31,6 @@ public class pagerAdapter extends FragmentPagerAdapter {
 
     @Override
     public CharSequence getPageTitle(int position) {
-        // Generate title based on item position
         return tabTitles[position];
     }
 }

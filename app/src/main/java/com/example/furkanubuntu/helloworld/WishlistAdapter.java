@@ -17,11 +17,12 @@ import java.util.ArrayList;
  * Created by furkanubuntu on 7/4/17.
  */
 
-public class WishlistAdapter extends ArrayAdapter<JsonItemOnSale> {
-    public WishlistAdapter(@NonNull Context context, ArrayList<JsonItemOnSale> favorites) {
+class WishlistAdapter extends ArrayAdapter<JsonItemOnSale> {
+    WishlistAdapter(@NonNull Context context, ArrayList<JsonItemOnSale> favorites) {
         super(context, 0, favorites);
     }
 
+    @NonNull
     public View getView(int position, View convertView, ViewGroup parent)
     {
         JsonItemOnSale anItem = getItem(position);
