@@ -3,4 +3,5 @@
     <string name="button1">NextActivity</string>
     <string name="checkFollowed">Browse Favorites</string>
     <string name="drawerTitle">Menu</string>
+
 </resources>

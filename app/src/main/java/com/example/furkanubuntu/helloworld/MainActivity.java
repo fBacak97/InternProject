@@ -117,7 +117,7 @@ public class MainActivity extends AppCompatActivity {
 
         fragmentManager = getFragmentManager();
 
-        fragment = itemlistFragment.newInstance(2);
+        fragment = new emptyFragment();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         fragmentTransaction.replace(R.id.productFragment,fragment).hide(fragment);
         fragmentTransaction.commit();

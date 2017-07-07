@@ -6,12 +6,12 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
@@ -50,7 +50,7 @@ public class ProductActivity extends AppCompatActivity {
     TextView header;
     TextView description;
     imageScrollAdapter adapter;
-    String apiKey = "AIzaSyCFrT2Vp7pqSBbTecdlzO_bpNkj52iZ04Y";//"AIzaSyAwL2u9ByNL9coBouyJBjtx3UXmb_mtC50";//"AIzaSyCj4Ok-oVrrVJassta4kX1dugbtGZTxD9A";
+    String apiKey = "AIzaSyCj4Ok-oVrrVJassta4kX1dugbtGZTxD9A";  // "AIzaSyAwL2u9ByNL9coBouyJBjtx3UXmb_mtC50"; //"AIzaSyCFrT2Vp7pqSBbTecdlzO_bpNkj52iZ04Y";//
     String cx = "000741119430587044101:2fdfbkejafg";
     int randomNo;
     String start;
@@ -60,13 +60,14 @@ public class ProductActivity extends AppCompatActivity {
     String combinedUrl;
     ArrayList<String> linkArray;
     ViewPager viewPager;
-
+    TabLayout swipeDots;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.product_activity);
 
+        swipeDots = (TabLayout) findViewById(R.id.swipeDots);
         viewPager = (ViewPager) findViewById(R.id.productSlider);
         header = (TextView) findViewById(R.id.header);
         description = (TextView) findViewById(R.id.product_infoText);
@@ -114,6 +115,26 @@ public class ProductActivity extends AppCompatActivity {
         LayoutInflater inflater = LayoutInflater.from(getApplicationContext());
         View headerView = inflater.inflate(R.layout.drawer_header, null,false);
 
+        swipeDots.setupWithViewPager(viewPager, true);
+        /*
+        viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+
+            }
+        });
+        */
+
         drawerListView.addHeaderView(headerView);
         drawerListView.setOnItemClickListener(new DrawerItemClickListener());
 
@@ -128,6 +149,8 @@ public class ProductActivity extends AppCompatActivity {
         Intent intent = getIntent();
         linkArray.add(intent.getStringExtra(Intent.EXTRA_TEXT));
         searchCriteria = intent.getStringExtra(Intent.EXTRA_TITLE);
+        description.setText(intent.getStringExtra(Intent.EXTRA_SUBJECT));
+        header.setText(intent.getStringExtra(Intent.EXTRA_SUBJECT));
         combinedUrl = "https://www.googleapis.com/customsearch/v1?key=" + apiKey + "&cx=" + cx + "&q=" + searchCriteria
                 + "&searchType=" + searchType + "&start=" + start + "&fileType=" + fileType + "&alt=json";
         UniqueASyncTask aSyncTask = new UniqueASyncTask(combinedUrl);
