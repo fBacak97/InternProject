@@ -3,9 +3,14 @@ package com.example.furkanubuntu.helloworld;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.content.Intent;
+import android.content.res.AssetManager;
+import android.content.res.Resources;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteOpenHelper;
 import android.graphics.PorterDuff;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.renderscript.ScriptGroup;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
@@ -14,21 +19,27 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.SearchView;
+import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+
+import static android.content.Context.MODE_PRIVATE;
 
 /**
  * Created by furkanubuntu on 6/29/17.
@@ -44,7 +55,7 @@ public class itemlistFragment extends Fragment {
     FragmentManager fragmentManager;
     public static final String choiceString = "ARG_PAGE";
     //String imageSize = "Lets see i think i will need this later"; //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    String apiKey = "AIzaSyCj4Ok-oVrrVJassta4kX1dugbtGZTxD9A"; //"AIzaSyAwL2u9ByNL9coBouyJBjtx3UXmb_mtC50"; //"AIzaSyCFrT2Vp7pqSBbTecdlzO_bpNkj52iZ04Y";//
+    String apiKey = "AIzaSyAwL2u9ByNL9coBouyJBjtx3UXmb_mtC50"; //"AIzaSyCj4Ok-oVrrVJassta4kX1dugbtGZTxD9A"; // //"AIzaSyCFrT2Vp7pqSBbTecdlzO_bpNkj52iZ04Y";//
     String cx = "000741119430587044101:2fdfbkejafg";
     String fileType = "jpg";
     String searchType = "image";
@@ -55,6 +66,7 @@ public class itemlistFragment extends Fragment {
     ProgressBar progressBar;
     SearchView searchView;
     String searchInput = "";
+    String aSyncTaskType = "normal";
 
     public static itemlistFragment newInstance(int choice) {
         Bundle args = new Bundle();
@@ -67,16 +79,18 @@ public class itemlistFragment extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        //SQLiteDatabase mydatabase = getActivity().openOrCreateDatabase("ProjectDB",MODE_PRIVATE,null);
+
         arrayOfGoods = new ArrayList<JsonItemOnSale>();
         arrayOfGoods2 = new ArrayList<JsonItemOnSale>();
         fragmentManager = getActivity().getFragmentManager();
-
 
         switch (getArguments().getInt(choiceString)) {
             case 2:
                 searchCriteria = "books+audiobooks";
                 combinedUrl = "https://www.googleapis.com/customsearch/v1?key=" + apiKey + "&cx=" + cx + "&q=" + searchCriteria
                         + "&searchType=" + searchType + "&fileType=" + fileType + "&alt=json";
+                aSyncTaskType = "normal";
                 myASyncTask aSyncTask = new myASyncTask(combinedUrl);
                 aSyncTask.execute();
                 break;
@@ -84,6 +98,7 @@ public class itemlistFragment extends Fragment {
                 searchCriteria = "movieposters";
                 combinedUrl = "https://www.googleapis.com/customsearch/v1?key=" + apiKey + "&cx=" + cx + "&q=" + searchCriteria
                         + "&searchType=" + searchType + "&fileType=" + fileType + "&alt=json";
+                aSyncTaskType = "normal";
                 myASyncTask aSyncTask1 = new myASyncTask(combinedUrl);
                 aSyncTask1.execute();
                 break;
@@ -91,6 +106,7 @@ public class itemlistFragment extends Fragment {
                 searchCriteria = "bestalbumcovers";
                 combinedUrl = "https://www.googleapis.com/customsearch/v1?key=" + apiKey + "&cx=" + cx + "&q=" + searchCriteria
                         + "&searchType=" + searchType + "&fileType=" + fileType + "&alt=json";
+                aSyncTaskType = "normal";
                 myASyncTask aSyncTask2 = new myASyncTask(combinedUrl);
                 aSyncTask2.execute();
                 break;
@@ -98,6 +114,7 @@ public class itemlistFragment extends Fragment {
                 searchCriteria = "videogamecovers";
                 combinedUrl = "https://www.googleapis.com/customsearch/v1?key=" + apiKey + "&cx=" + cx + "&q=" + searchCriteria
                         + "&searchType=" + searchType + "&fileType=" + fileType + "&alt=json";
+                aSyncTaskType = "normal";
                 myASyncTask aSyncTask3 = new myASyncTask(combinedUrl);
                 aSyncTask3.execute();
                 break;
@@ -105,7 +122,7 @@ public class itemlistFragment extends Fragment {
                 searchCriteria = "laptops";
                 combinedUrl = "https://www.googleapis.com/customsearch/v1?key=" + apiKey + "&cx=" + cx + "&q=" + searchCriteria
                         + "&searchType=" + searchType + "&fileType=" + fileType + "&alt=json";
-                //new myASyncTask(combinedUrl).execute();
+                aSyncTaskType = "normal";
                 myASyncTask aSyncTask4 = new myASyncTask(combinedUrl);
                 aSyncTask4.execute();
                 break;
@@ -113,7 +130,7 @@ public class itemlistFragment extends Fragment {
                 searchCriteria = "iphone+samsung";
                 combinedUrl = "https://www.googleapis.com/customsearch/v1?key=" + apiKey + "&cx=" + cx + "&q=" + searchCriteria
                         + "&searchType=" + searchType + "&fileType=" + fileType + "&alt=json";
-                //new myASyncTask(combinedUrl).execute();
+                aSyncTaskType = "normal";
                 myASyncTask aSyncTask5 = new myASyncTask(combinedUrl);
                 aSyncTask5.execute();
                 break;
@@ -121,6 +138,7 @@ public class itemlistFragment extends Fragment {
                 searchCriteria = "gardening+tools";
                 combinedUrl = "https://www.googleapis.com/customsearch/v1?key=" + apiKey + "&cx=" + cx + "&q=" + searchCriteria
                         + "&searchType=" + searchType + "&fileType=" + fileType + "&alt=json";
+                aSyncTaskType = "normal";
                 myASyncTask aSyncTask6 = new myASyncTask(combinedUrl);
                 aSyncTask6.execute();
                 break;
@@ -128,6 +146,7 @@ public class itemlistFragment extends Fragment {
                 searchCriteria = "grocery+items";
                 combinedUrl = "https://www.googleapis.com/customsearch/v1?key=" + apiKey + "&cx=" + cx + "&q=" + searchCriteria
                         + "&searchType=" + searchType + "&fileType=" + fileType + "&alt=json";
+                aSyncTaskType = "normal";
                 myASyncTask aSyncTask7 = new myASyncTask(combinedUrl);
                 aSyncTask7.execute();
                 break;
@@ -135,6 +154,7 @@ public class itemlistFragment extends Fragment {
                 searchCriteria = "beauty+product+care";
                 combinedUrl = "https://www.googleapis.com/customsearch/v1?key=" + apiKey + "&cx=" + cx + "&q=" + searchCriteria
                         + "&searchType=" + searchType + "&fileType=" + fileType + "&alt=json";
+                aSyncTaskType = "normal";
                 myASyncTask aSyncTask8 = new myASyncTask(combinedUrl);
                 aSyncTask8.execute();
                 break;
@@ -142,6 +162,7 @@ public class itemlistFragment extends Fragment {
                 searchCriteria = "toys";
                 combinedUrl = "https://www.googleapis.com/customsearch/v1?key=" + apiKey + "&cx=" + cx + "&q=" + searchCriteria
                         + "&searchType=" + searchType + "&fileType=" + fileType + "&alt=json";
+                aSyncTaskType = "normal";
                 myASyncTask aSyncTask9 = new myASyncTask(combinedUrl);
                 aSyncTask9.execute();
                 break;
@@ -149,6 +170,7 @@ public class itemlistFragment extends Fragment {
                 searchCriteria = "clothing+shoes+product";
                 combinedUrl = "https://www.googleapis.com/customsearch/v1?key=" + apiKey + "&cx=" + cx + "&q=" + searchCriteria
                         + "&searchType=" + searchType + "&fileType=" + fileType + "&alt=json";
+                aSyncTaskType = "normal";
                 myASyncTask aSyncTask10 = new myASyncTask(combinedUrl);
                 aSyncTask10.execute();
                 break;
@@ -156,6 +178,7 @@ public class itemlistFragment extends Fragment {
                 searchCriteria = "sports+products";
                 combinedUrl = "https://www.googleapis.com/customsearch/v1?key=" + apiKey + "&cx=" + cx + "&q=" + searchCriteria
                         + "&searchType=" + searchType + "&fileType=" + fileType + "&alt=json";
+                aSyncTaskType = "normal";
                 myASyncTask aSyncTask11 = new myASyncTask(combinedUrl);
                 aSyncTask11.execute();
                 break;
@@ -177,6 +200,7 @@ public class itemlistFragment extends Fragment {
                 .setColorFilter(ContextCompat.getColor(view.getContext(), R.color.black), PorterDuff.Mode.SRC_IN );
         searchView = (SearchView) getActivity().findViewById(R.id.searchBar);
 
+
         listView = (ListView) view.findViewById(R.id.item_listview);
         listView.setAdapter(adapter);
         listView.setOnItemClickListener(new ItemClickListener());
@@ -190,13 +214,13 @@ public class itemlistFragment extends Fragment {
             public void onScroll(AbsListView absListView, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
                 if (searchInput.length() == 0) {
                     int lastInScreen = firstVisibleItem + visibleItemCount;
-                    if (lastInScreen == totalItemCount)//+++++++++++++++++ WE NEED TO SEE İF THE ASYNC TASK İS STİLL RUNNİNG
+                    if (lastInScreen == totalItemCount)
                     {
                         if (aSyncTask == null || aSyncTask.getStatus() != AsyncTask.Status.RUNNING) {
                             scrollCount++;
                             combinedUrl = "https://www.googleapis.com/customsearch/v1?key=" + apiKey + "&cx=" + cx + "&q=" + searchCriteria
                                     + "&searchType=" + searchType + "&fileType=" + fileType + "&start=" + scrollCount * 10 + "&alt=json";
-                            //new myASyncTask(combinedUrl).execute();
+                            aSyncTaskType = "normal";
                             aSyncTask = new myASyncTask(combinedUrl);
                             aSyncTask.execute();
                             progressBar.setVisibility(View.VISIBLE);
@@ -208,28 +232,47 @@ public class itemlistFragment extends Fragment {
 
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
-            public boolean onQueryTextSubmit(String s) {
-                return true;
+            public boolean onQueryTextSubmit(String userInput) {
+                if(userInput.length() > 0){
+                    if(wordChecker(userInput)){
+                        searchCriteria = searchCriteria + "+" + userInput;
+                        combinedUrl = "https://www.googleapis.com/customsearch/v1?key=" + apiKey + "&cx=" + cx + "&q=" + searchCriteria
+                                + "&searchType=" + searchType + "&fileType=" + fileType + "&alt=json";
+                        aSyncTaskType = "search";
+                        myASyncTask aSyncTask = new myASyncTask(combinedUrl);
+                        aSyncTask.execute();
+                        return true;
+                    }
+                    else
+                    {
+                        Toast toast = Toast.makeText(getActivity(), "Not a meaningful word.", Toast.LENGTH_SHORT);
+                        toast.show();
+                        return false;
+                    }
+                }
+                Toast toast = Toast.makeText(getActivity(), "Please enter a word before submitting." ,Toast.LENGTH_SHORT);
+                toast.show();
+                return false;
             }
 
             @Override
             public boolean onQueryTextChange(String s) {
-                searchInput = s;
-                if(s.length() == 0){
-                    adapter = new JsonAdapter(view.getContext(), arrayOfGoods);
-                    listView.setAdapter(adapter);
-                }
-                else if(s.length() > 0){
-                    arrayOfGoods2.clear();
-                    for (int i = 0; i < arrayOfGoods.size(); i++) {
-                        if (arrayOfGoods.get(i).description.toLowerCase().contains(s.toLowerCase())){
-                            arrayOfGoods2.add(arrayOfGoods.get(i));
-                            adapter.notifyDataSetChanged();
-                        }
-                    }
-                    adapter = new JsonAdapter(view.getContext(), arrayOfGoods2);
-                    listView.setAdapter(adapter);
-                }
+//                searchInput = s;
+//                if(s.length() == 0){
+//                    adapter = new JsonAdapter(view.getContext(), arrayOfGoods);
+//                    listView.setAdapter(adapter);
+//                }
+//                else if(s.length() > 0){
+//                    arrayOfGoods2.clear();
+//                    for (int i = 0; i < arrayOfGoods.size(); i++) {
+//                        if (arrayOfGoods.get(i).description.toLowerCase().contains(s.toLowerCase())){
+//                            arrayOfGoods2.add(arrayOfGoods.get(i));
+//                            adapter.notifyDataSetChanged();
+//                        }
+//                    }
+//                    adapter = new JsonAdapter(view.getContext(), arrayOfGoods2);
+//                    listView.setAdapter(adapter);
+//                }
                 return true;
             }
         });
@@ -286,9 +329,12 @@ public class itemlistFragment extends Fragment {
             if (jsonObject != null) {
                 try {
                     jsonArray = jsonObject.getJSONArray("items");
+                    if(aSyncTaskType == "search")
+                        arrayOfGoods.clear();
                     for (int i = 0; i < 10; i++) {
                         Log.d("MYTAG", jsonArray.getJSONObject(i).getString("link"));
-                        arrayOfGoods.add(new JsonItemOnSale("%35", "450$", jsonArray.getJSONObject(i).getString("title"), jsonArray.getJSONObject(i).getString("link")));
+                        arrayOfGoods.add(new JsonItemOnSale("%35", "450$", jsonArray.getJSONObject(i).getString("title"),
+                                jsonArray.getJSONObject(i).getString("link"),searchCriteria));
                     }
 
                 } catch (JSONException e) {
@@ -301,6 +347,7 @@ public class itemlistFragment extends Fragment {
         @Override
         protected void onPostExecute(Object o) {
             super.onPostExecute(o);
+            Log.d("hello", "In post execute");
             adapter.notifyDataSetChanged();
             progressBar.setVisibility(View.GONE);
         }
@@ -312,6 +359,22 @@ public class itemlistFragment extends Fragment {
         intent.putExtra(Intent.EXTRA_TITLE,searchCriteria);
         intent.putExtra(Intent.EXTRA_SUBJECT,arrayOfGoods.get(position).description);
         getActivity().startActivity(intent);
+    }
+    protected boolean wordChecker(String word) {
+        try {
+            InputStream stream = getResources().openRawResource(R.raw.americanenglish);
+            BufferedReader in = new BufferedReader(new InputStreamReader(stream));
+            String str;
+            while ((str = in.readLine()) != null) {
+                if (str.toLowerCase().contains(word.toLowerCase())) {
+                    return true;
+                }
+            }
+            in.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 
     private class ItemClickListener implements ListView.OnItemClickListener {

@@ -6,6 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -36,7 +37,7 @@ class WishlistAdapter extends ArrayAdapter<JsonItemOnSale> {
 
 
         description.setText(anItem.description);
-        Picasso.with(convertView.getContext()).load(anItem.jsonLink).resize(100,100).into(productPic);
+        Picasso.with(convertView.getContext()).load(anItem.jsonLink).fit().into(productPic);
 
         return convertView;
     }

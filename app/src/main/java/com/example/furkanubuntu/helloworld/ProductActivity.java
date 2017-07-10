@@ -50,7 +50,7 @@ public class ProductActivity extends AppCompatActivity {
     TextView header;
     TextView description;
     imageScrollAdapter adapter;
-    String apiKey = "AIzaSyCj4Ok-oVrrVJassta4kX1dugbtGZTxD9A";  // "AIzaSyAwL2u9ByNL9coBouyJBjtx3UXmb_mtC50"; //"AIzaSyCFrT2Vp7pqSBbTecdlzO_bpNkj52iZ04Y";//
+    String apiKey =  "AIzaSyAwL2u9ByNL9coBouyJBjtx3UXmb_mtC50"; //"AIzaSyCj4Ok-oVrrVJassta4kX1dugbtGZTxD9A";  // //"AIzaSyCFrT2Vp7pqSBbTecdlzO_bpNkj52iZ04Y";//
     String cx = "000741119430587044101:2fdfbkejafg";
     int randomNo;
     String start;
@@ -116,24 +116,6 @@ public class ProductActivity extends AppCompatActivity {
         View headerView = inflater.inflate(R.layout.drawer_header, null,false);
 
         swipeDots.setupWithViewPager(viewPager, true);
-        /*
-        viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
-            @Override
-            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-
-            }
-
-            @Override
-            public void onPageSelected(int position) {
-
-            }
-
-            @Override
-            public void onPageScrollStateChanged(int state) {
-
-            }
-        });
-        */
 
         drawerListView.addHeaderView(headerView);
         drawerListView.setOnItemClickListener(new DrawerItemClickListener());
@@ -155,9 +137,6 @@ public class ProductActivity extends AppCompatActivity {
                 + "&searchType=" + searchType + "&start=" + start + "&fileType=" + fileType + "&alt=json";
         UniqueASyncTask aSyncTask = new UniqueASyncTask(combinedUrl);
         aSyncTask.execute();
-
-        //adapter = new imageScrollAdapter(linkArray,getBaseContext());
-        //viewPager.setAdapter(adapter);
 
     }
 
@@ -242,7 +221,6 @@ public class ProductActivity extends AppCompatActivity {
 
     private class UniqueASyncTask extends AsyncTask {
         String urlString;
-        int exceptionNo;
 
         private UniqueASyncTask(String urlString) {
             super();
@@ -280,7 +258,6 @@ public class ProductActivity extends AppCompatActivity {
                     builder.append(line);
                 }
             } catch (IOException e) {
-                exceptionNo = 1;exceptionNo = 1;
                 e.printStackTrace();
             }
             JSONObject jsonObject = null;

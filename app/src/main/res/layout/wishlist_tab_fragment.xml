@@ -7,8 +7,7 @@
         android:id="@+id/wishlistTabSelections"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:divider="@color/green"
-        android:dividerHeight="5dp"
-        android:background="@color/white"/>
+        android:background="@color/white"
+        />
 
 </LinearLayout>

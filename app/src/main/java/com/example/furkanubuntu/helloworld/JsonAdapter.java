@@ -1,11 +1,14 @@
 package com.example.furkanubuntu.helloworld;
 
+import android.content.ContentValues;
 import android.content.Context;
+import android.database.sqlite.SQLiteDatabase;
 import android.support.annotation.NonNull;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -25,7 +28,9 @@ class JsonAdapter extends ArrayAdapter<JsonItemOnSale> {
     @Override
     public View getView(int position, View convertView, ViewGroup parent)
     {
-        JsonItemOnSale anItem = getItem(position);
+
+
+        final JsonItemOnSale anItem = getItem(position);
 
         if(convertView == null){
             convertView = LayoutInflater.from(getContext()).inflate(R.layout.hwlayout,parent,false);
@@ -35,7 +40,21 @@ class JsonAdapter extends ArrayAdapter<JsonItemOnSale> {
         TextView price = (TextView) convertView.findViewById(R.id.priceText);
         TextView description = (TextView) convertView.findViewById(R.id.infoText);
         ImageView productPic = (ImageView) convertView.findViewById(R.id.productPic);
+        Button addFavButton = (Button) convertView.findViewById(R.id.favButton);
 
+        addFavButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                DbHelper helperInstance = new DbHelper(getContext());
+                SQLiteDatabase db = helperInstance.getWritableDatabase();
+
+                ContentValues content = new ContentValues();
+                content.put("link",anItem.jsonLink);
+                content.put("description",anItem.jsonLink);
+                content.put("department",anItem.department);
+                db.insert("ProjectDB",null,content);
+            }
+        });
         discountAmount.setText(anItem.discount);
         price.setText(anItem.price);
         description.setText(anItem.description);

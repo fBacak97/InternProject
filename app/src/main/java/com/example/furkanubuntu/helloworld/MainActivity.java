@@ -3,6 +3,7 @@ package com.example.furkanubuntu.helloworld;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
+import android.content.res.AssetManager;
 import android.graphics.drawable.GradientDrawable;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;

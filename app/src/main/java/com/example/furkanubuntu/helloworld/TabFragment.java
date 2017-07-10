@@ -1,5 +1,6 @@
 package com.example.furkanubuntu.helloworld;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -49,10 +50,8 @@ public class TabFragment extends Fragment {
         userTabSelectionItems.add(new DrawerItem(" Location", R.drawable.userlocation));
 
         wishlistTabSelectionItems = new ArrayList<>();
-        wishlistTabSelectionItems.add(new JsonItemOnSale("a","a","abc","https://images-na.ssl-images-amazon.com/images/G/01/img16/toys/content-grid/" +
-                "character-tile/1014587_us_toys_favorite_characters_q4__shop-by-tile_416x560_pokemon.jpg"));
-        wishlistTabSelectionItems.add(new JsonItemOnSale("a","a","abc2","https://images-na.ssl-images-amazon.com/images/G/01/img16/toys/content-grid/" +
-                "character-tile/1014587_us_toys_favorite_characters_q4__shop-by-tile_416x560_pokemon.jpg"));
+        wishlistTabSelectionItems.add(new JsonItemOnSale("a","a","abc","http://cdn3.volusion.com/jebff.evopn/v/vspfiles/photos/510-2.jpg?1457531829","books+audiobooks"));
+        //wishlistTabSelectionItems.add(new JsonItemOnSale("a","a","abc2","http://cdn3.volusion.com/jebff.evopn/v/vspfiles/photos/510-2.jpg?1457531829"));
     }
 
     public void selectUserTabItem(int position){
@@ -66,6 +65,14 @@ public class TabFragment extends Fragment {
         }
     }
 
+    public void selectWishlistTabItem(int position){
+        Intent intent = new Intent(getActivity(),ProductActivity.class);
+        intent.putExtra(Intent.EXTRA_TEXT,wishlistTabSelectionItems.get(position).jsonLink);
+        intent.putExtra(Intent.EXTRA_TITLE,wishlistTabSelectionItems.get(position).department);
+        intent.putExtra(Intent.EXTRA_SUBJECT,wishlistTabSelectionItems.get(position).description);
+        getActivity().startActivity(intent);
+    }
+
     private class UserTabItemClickListener implements ListView.OnItemClickListener {
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -73,7 +80,11 @@ public class TabFragment extends Fragment {
                 selectUserTabItem(position);
             }
             else if (mPage == 1){
-
+                selectWishlistTabItem(position);
+            }
+            else
+            {
+                //abc
             }
         }
     }
