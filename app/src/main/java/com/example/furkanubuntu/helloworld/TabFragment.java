@@ -1,14 +1,23 @@
 package com.example.furkanubuntu.helloworld;
 
+import android.content.Context;
 import android.content.Intent;
+import android.database.DataSetObserver;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
+
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 
@@ -26,6 +35,8 @@ public class TabFragment extends Fragment {
     ListView userTabListView;
     WishlistAdapter wishlistTabAdapter;
     View view;
+    Button button;
+    WishlistTabAdapter adapter;
 
     private int mPage;
 
@@ -103,9 +114,115 @@ public class TabFragment extends Fragment {
             view = inflater.inflate(R.layout.wishlist_tab_fragment,container,false);
             wishlistTabAdapter = new WishlistAdapter(view.getContext(),wishlistTabSelectionItems);
             wishlistTabListView = (ListView) view.findViewById(R.id.wishlistTabSelections);
-            wishlistTabListView.setAdapter(wishlistTabAdapter);
+            adapter = new WishlistTabAdapter();
+            wishlistTabListView.setAdapter(adapter);
+            //wishlistTabListView.setAdapter(wishlistTabAdapter);
             wishlistTabListView.setOnItemClickListener(new UserTabItemClickListener());
         }
         return view;
+    }
+
+    class WishlistTabAdapter implements ListAdapter {
+
+        JsonItemOnSale itemOnSale;
+
+        @Override
+        public void registerDataSetObserver(DataSetObserver dataSetObserver) {
+
+        }
+
+        @Override
+        public void unregisterDataSetObserver(DataSetObserver dataSetObserver) {
+
+        }
+
+        @Override
+        public int getCount() {
+            return 0;
+        }
+
+        @Override
+        public Object getItem(int position) {
+            MainActivity main = (MainActivity) getActivity();
+            DbHelper helperInstance = main.getInstance();
+            itemOnSale = helperInstance.readWishlist(position);
+            return itemOnSale;
+        }
+
+        @Override
+        public long getItemId(int i) {
+            return 0;
+        }
+
+        @Override
+        public boolean hasStableIds() {
+            return false;
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            if (convertView == null) {
+                convertView = LayoutInflater.from(getContext()).inflate(R.layout.wishlist_item, parent, false);
+            }
+            TextView description = (TextView) convertView.findViewById(R.id.wishlistItemName);
+            ImageView productPic = (ImageView) convertView.findViewById(R.id.wishlistPic);
+            Picasso.with(convertView.getContext()).load(itemOnSale.jsonLink).fit().into(productPic);
+            description.setText(itemOnSale.description);
+
+            return convertView;
+        }
+
+        @Override
+        public int getItemViewType(int i) {
+            return 0;
+        }
+
+        @Override
+        public int getViewTypeCount() {
+            return 1;
+        }
+
+        @Override
+        public boolean isEmpty() {
+            return false;
+        }
+
+        @Override
+        public boolean areAllItemsEnabled() {
+            return false;
+        }
+
+        @Override
+        public boolean isEnabled(int i) {
+            return false;
+        }
+
+    }
+
+        class WishlistAdapter extends ArrayAdapter<JsonItemOnSale> {
+        WishlistAdapter(@NonNull Context context, ArrayList<JsonItemOnSale> favorites) {
+            super(context, 0, favorites);
+        }
+
+        @NonNull
+        public View getView(int position, View convertView, ViewGroup parent)
+        {
+
+            //JsonItemOnSale anItem = getItem(position);
+
+            if(convertView == null){
+                convertView = LayoutInflater.from(getContext()).inflate(R.layout.wishlist_item,parent,false);
+            }
+
+            TextView description = (TextView) convertView.findViewById(R.id.wishlistItemName);
+            ImageView productPic = (ImageView) convertView.findViewById(R.id.wishlistPic);
+            MainActivity main = (MainActivity) getActivity();
+            DbHelper helperInstance = main.getInstance();
+            JsonItemOnSale item = helperInstance.readWishlist(position);
+            Picasso.with(convertView.getContext()).load(item.jsonLink).fit().into(productPic);
+            description.setText(item.description);
+
+            return convertView;
+        }
     }
 }

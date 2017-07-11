@@ -1,7 +1,9 @@
 package com.example.furkanubuntu.helloworld;
 
+import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentManager;
+import android.content.Context;
 import android.content.Intent;
 import android.content.res.AssetManager;
 import android.content.res.Resources;
@@ -11,6 +13,7 @@ import android.graphics.PorterDuff;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.renderscript.ScriptGroup;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
@@ -19,11 +22,16 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.SearchView;
+import android.widget.TextView;
 import android.widget.Toast;
+
+import com.squareup.picasso.Picasso;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -381,6 +389,46 @@ public class itemlistFragment extends Fragment {
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
             startProductActivity(position);
+        }
+    }
+
+    class JsonAdapter extends ArrayAdapter<JsonItemOnSale> {
+        JsonAdapter(Context context, ArrayList<JsonItemOnSale> goods){
+            super(context,0,goods);
+        }
+        @NonNull
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent)
+        {
+
+            final JsonItemOnSale anItem = getItem(position);
+
+            if(convertView == null){
+                convertView = LayoutInflater.from(getActivity()).inflate(R.layout.hwlayout,parent,false);
+            }
+
+            TextView discountAmount = (TextView) convertView.findViewById(R.id.discountText);
+            TextView price = (TextView) convertView.findViewById(R.id.priceText);
+            TextView description = (TextView) convertView.findViewById(R.id.infoText);
+            ImageView productPic = (ImageView) convertView.findViewById(R.id.productPic);
+            Button addFavButton = (Button) convertView.findViewById(R.id.favButton);
+
+            addFavButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    MainActivity main = (MainActivity) getActivity();
+                    DbHelper helperInstance = main.getInstance();
+                    helperInstance.addWishlist(anItem.jsonLink, anItem.description, anItem.department);
+                }
+            });
+
+            discountAmount.setText(anItem.discount);
+            price.setText(anItem.price);
+            description.setText(anItem.description);
+            Picasso.with(convertView.getContext()).load(anItem.jsonLink).into(productPic);
+            //productPic.setAdapter(new imageScrollAdapter(anItem.jsonLink,getContext()));
+
+            return convertView;
         }
     }
 

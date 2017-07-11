@@ -1,7 +1,10 @@
 package com.example.furkanubuntu.helloworld;
 
 import android.content.Context;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.support.annotation.NonNull;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,7 +15,10 @@ import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 
+import org.w3c.dom.Text;
+
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by furkanubuntu on 7/4/17.
@@ -26,7 +32,6 @@ class WishlistAdapter extends ArrayAdapter<JsonItemOnSale> {
     @NonNull
     public View getView(int position, View convertView, ViewGroup parent)
     {
-        JsonItemOnSale anItem = getItem(position);
 
         if(convertView == null){
             convertView = LayoutInflater.from(getContext()).inflate(R.layout.wishlist_item,parent,false);
@@ -35,9 +40,10 @@ class WishlistAdapter extends ArrayAdapter<JsonItemOnSale> {
         TextView description = (TextView) convertView.findViewById(R.id.wishlistItemName);
         ImageView productPic = (ImageView) convertView.findViewById(R.id.wishlistPic);
 
-
-        description.setText(anItem.description);
-        Picasso.with(convertView.getContext()).load(anItem.jsonLink).fit().into(productPic);
+        DbHelper helperInstance = new DbHelper(getContext());
+        JsonItemOnSale item = helperInstance.readWishlist(position);
+        Picasso.with(convertView.getContext()).load(item.jsonLink).fit().into(productPic);
+        description.setText(item.description);
 
         return convertView;
     }

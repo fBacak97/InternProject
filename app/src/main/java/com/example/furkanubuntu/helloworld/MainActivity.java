@@ -35,12 +35,15 @@ public class MainActivity extends AppCompatActivity {
     ArrayList<DrawerItem> departmentsList;
     String currentDrawerContent = "mainPage";
     SearchView searchView;
+    DbHelper helperInstance;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        helperInstance = new DbHelper(getBaseContext());
+        helperInstance.getReadableDatabase();
         drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         ViewPager viewPager = (ViewPager)  findViewById(R.id.viewpager);
         viewPager.setAdapter(new pagerAdapter(getSupportFragmentManager(),MainActivity.this));
@@ -215,6 +218,10 @@ public class MainActivity extends AppCompatActivity {
             drawerListView.setAdapter(drawerAdapter);
             currentDrawerContent = "mainPage";
         }
+    }
+
+    public DbHelper getInstance(){
+        return helperInstance;
     }
 
     private class DrawerItemClickListener implements ListView.OnItemClickListener {

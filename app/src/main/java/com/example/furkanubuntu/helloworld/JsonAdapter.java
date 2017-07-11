@@ -4,6 +4,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.support.annotation.NonNull;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -29,7 +30,6 @@ class JsonAdapter extends ArrayAdapter<JsonItemOnSale> {
     public View getView(int position, View convertView, ViewGroup parent)
     {
 
-
         final JsonItemOnSale anItem = getItem(position);
 
         if(convertView == null){
@@ -46,15 +46,10 @@ class JsonAdapter extends ArrayAdapter<JsonItemOnSale> {
             @Override
             public void onClick(View view) {
                 DbHelper helperInstance = new DbHelper(getContext());
-                SQLiteDatabase db = helperInstance.getWritableDatabase();
-
-                ContentValues content = new ContentValues();
-                content.put("link",anItem.jsonLink);
-                content.put("description",anItem.jsonLink);
-                content.put("department",anItem.department);
-                db.insert("ProjectDB",null,content);
+                helperInstance.addWishlist(anItem.jsonLink, anItem.description, anItem.department);
             }
         });
+
         discountAmount.setText(anItem.discount);
         price.setText(anItem.price);
         description.setText(anItem.description);
