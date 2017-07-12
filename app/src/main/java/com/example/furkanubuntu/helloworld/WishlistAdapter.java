@@ -33,17 +33,17 @@ class WishlistAdapter extends ArrayAdapter<JsonItemOnSale> {
     public View getView(int position, View convertView, ViewGroup parent)
     {
 
-        if(convertView == null){
-            convertView = LayoutInflater.from(getContext()).inflate(R.layout.wishlist_item,parent,false);
-        }
-
-        TextView description = (TextView) convertView.findViewById(R.id.wishlistItemName);
-        ImageView productPic = (ImageView) convertView.findViewById(R.id.wishlistPic);
-
-        DbHelper helperInstance = new DbHelper(getContext());
-        JsonItemOnSale item = helperInstance.readWishlist(position);
-        Picasso.with(convertView.getContext()).load(item.jsonLink).fit().into(productPic);
-        description.setText(item.description);
+//        if(convertView == null){
+//            convertView = LayoutInflater.from(getContext()).inflate(R.layout.wishlist_item,parent,false);
+//        }
+//
+//        TextView description = (TextView) convertView.findViewById(R.id.wishlistItemName);
+//        ImageView productPic = (ImageView) convertView.findViewById(R.id.wishlistPic);
+//
+//        DbHelper helperInstance = new DbHelper(getContext());
+//        JsonItemOnSale item = helperInstance.readWishlist(position);
+//        Picasso.with(convertView.getContext()).load(item.jsonLink).fit().into(productPic);
+//        description.setText(item.description);
 
         return convertView;
     }

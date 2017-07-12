@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <include
+        android:id="@+id/toolbar_login"
+        layout="@layout/toolbar_login" />
+
+    <Button
+        android:id="@+id/loginButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="175dp"
+        android:text="LOGIN"
+        style="@style/AppTheme.Button"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true" />
+
+    <EditText
+        android:id="@+id/passwordText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:inputType="textPassword"
+        android:layout_marginBottom="27dp"
+        android:hint="Password"
+        android:layout_above="@+id/loginButton"
+        android:layout_centerHorizontal="true" />
+
+    <EditText
+        android:id="@+id/usernameText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:inputType="textPassword"
+        android:layout_marginBottom="34dp"
+        android:hint="Username"
+        android:layout_above="@+id/passwordText"
+        android:layout_alignLeft="@+id/passwordText"
+        android:layout_alignStart="@+id/passwordText" />
+
+    <TextView
+        android:id="@+id/createAccount"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="60dp"
+        android:text="Not a user? Create an account."
+        android:layout_below="@+id/passwordText"
+        android:layout_centerHorizontal="true"
+        android:textColor="#3F51B5"/>
+
+    <fragment
+        android:id="@+id/createAccountFragment"
+        android:name="com.example.furkanubuntu.helloworld.createAccountFragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@+id/toolbar_login" />
+
+
+</RelativeLayout>

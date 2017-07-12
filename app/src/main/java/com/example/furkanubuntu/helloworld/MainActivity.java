@@ -3,7 +3,7 @@ package com.example.furkanubuntu.helloworld;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
-import android.content.res.AssetManager;
+import android.content.Intent;
 import android.graphics.drawable.GradientDrawable;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
@@ -36,11 +36,15 @@ public class MainActivity extends AppCompatActivity {
     String currentDrawerContent = "mainPage";
     SearchView searchView;
     DbHelper helperInstance;
+    int userID;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        Intent intent = getIntent();
+        userID = intent.getIntExtra(Intent.EXTRA_TITLE,0);
 
         helperInstance = new DbHelper(getBaseContext());
         helperInstance.getReadableDatabase();

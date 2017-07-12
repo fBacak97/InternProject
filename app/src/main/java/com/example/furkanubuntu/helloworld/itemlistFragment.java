@@ -1,18 +1,12 @@
 package com.example.furkanubuntu.helloworld;
 
-import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.content.Context;
 import android.content.Intent;
-import android.content.res.AssetManager;
-import android.content.res.Resources;
-import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteOpenHelper;
 import android.graphics.PorterDuff;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.renderscript.ScriptGroup;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
@@ -38,7 +32,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -47,7 +40,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 
-import static android.content.Context.MODE_PRIVATE;
 
 /**
  * Created by furkanubuntu on 6/29/17.
@@ -87,7 +79,6 @@ public class itemlistFragment extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //SQLiteDatabase mydatabase = getActivity().openOrCreateDatabase("ProjectDB",MODE_PRIVATE,null);
 
         arrayOfGoods = new ArrayList<JsonItemOnSale>();
         arrayOfGoods2 = new ArrayList<JsonItemOnSale>();
@@ -337,7 +328,7 @@ public class itemlistFragment extends Fragment {
             if (jsonObject != null) {
                 try {
                     jsonArray = jsonObject.getJSONArray("items");
-                    if(aSyncTaskType == "search")
+                    if(aSyncTaskType.equals("search"))
                         arrayOfGoods.clear();
                     for (int i = 0; i < 10; i++) {
                         Log.d("MYTAG", jsonArray.getJSONObject(i).getString("link"));
@@ -368,6 +359,7 @@ public class itemlistFragment extends Fragment {
         intent.putExtra(Intent.EXTRA_SUBJECT,arrayOfGoods.get(position).description);
         getActivity().startActivity(intent);
     }
+
     protected boolean wordChecker(String word) {
         try {
             InputStream stream = getResources().openRawResource(R.raw.americanenglish);
@@ -398,7 +390,7 @@ public class itemlistFragment extends Fragment {
         }
         @NonNull
         @Override
-        public View getView(int position, View convertView, ViewGroup parent)
+        public View getView(int position, View convertView, @NonNull ViewGroup parent)
         {
 
             final JsonItemOnSale anItem = getItem(position);
@@ -418,7 +410,7 @@ public class itemlistFragment extends Fragment {
                 public void onClick(View view) {
                     MainActivity main = (MainActivity) getActivity();
                     DbHelper helperInstance = main.getInstance();
-                    helperInstance.addWishlist(anItem.jsonLink, anItem.description, anItem.department);
+                    helperInstance.addWishlist(anItem.jsonLink, anItem.description, anItem.department,main.userID);
                 }
             });
 
