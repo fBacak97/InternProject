@@ -3,5 +3,6 @@
     <string name="button1">NextActivity</string>
     <string name="checkFollowed">Browse Favorites</string>
     <string name="drawerTitle">Menu</string>
+    <string name="recommendations"><u>Recommended items</u></string>
 
 </resources>

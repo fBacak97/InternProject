@@ -19,11 +19,12 @@ import android.widget.AdapterView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.SearchView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements itemlistFragment.OnFavoritesAdded {
     ListView drawerListView;
     DrawerLayout drawerLayout;
     Fragment fragment;
@@ -36,7 +37,10 @@ public class MainActivity extends AppCompatActivity {
     String currentDrawerContent = "mainPage";
     SearchView searchView;
     DbHelper helperInstance;
+    ViewPager viewPager;
     int userID;
+    TabLayout tabLayout;
+    android.support.v4.view.PagerAdapter pagerAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,15 +50,16 @@ public class MainActivity extends AppCompatActivity {
         Intent intent = getIntent();
         userID = intent.getIntExtra(Intent.EXTRA_TITLE,0);
 
+        pagerAdapter = new PagerAdapter(getSupportFragmentManager(),MainActivity.this,"","","");
         helperInstance = new DbHelper(getBaseContext());
         helperInstance.getReadableDatabase();
         drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-        ViewPager viewPager = (ViewPager)  findViewById(R.id.viewpager);
-        viewPager.setAdapter(new pagerAdapter(getSupportFragmentManager(),MainActivity.this));
+        viewPager = (ViewPager)  findViewById(R.id.viewpager);
+        viewPager.setAdapter(pagerAdapter);
         searchView = (SearchView) findViewById(R.id.searchBar);
         searchView.setVisibility(View.INVISIBLE);
 
-        TabLayout tabLayout = (TabLayout) findViewById(R.id.sliding_tabs);
+        tabLayout = (TabLayout) findViewById(R.id.sliding_tabs);
         tabLayout.setupWithViewPager(viewPager);
         tabLayout.getTabAt(0).setIcon(R.drawable.home);
         tabLayout.getTabAt(1).setIcon(R.drawable.favorite);
@@ -213,9 +218,11 @@ public class MainActivity extends AppCompatActivity {
 
     public void previousDrawerView(){
         if (currentDrawerContent.equals("mainPage")) {
+            tabLayout.setupWithViewPager(viewPager);
             drawerLayout.closeDrawers();
-            Log.d("MYTAG","Make invisible");
             searchView.setVisibility(View.INVISIBLE);
+            Log.d("MYTAG","Make invisible");
+            pagerAdapter.notifyDataSetChanged();
         }
         else if (currentDrawerContent.equals("departmentsTab")) {
             drawerAdapter = new DrawerAdapter(this, drawerItemList);
@@ -228,11 +235,29 @@ public class MainActivity extends AppCompatActivity {
         return helperInstance;
     }
 
+    @Override
+    public void onFavButtonPressed(String description, String link, String department) {
+        getSupportFragmentManager().executePendingTransactions();
+        TabFragment tabFragment = (TabFragment) getSupportFragmentManager().findFragmentByTag("android:switcher:"+R.id.viewpager+":1");
+        if(arrayContainChecker(tabFragment.wishlistTabSelectionItems, link)) {
+            tabFragment.wishlistTabSelectionItems.add(new JsonItemOnSale("Random", "Random", description, link, department));
+            tabFragment.wishlistTabAdapter.notifyDataSetChanged();
+        }
+    }
+
     private class DrawerItemClickListener implements ListView.OnItemClickListener {
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 selectDrawerItem(position);
         }
+    }
+
+    public boolean arrayContainChecker(ArrayList<JsonItemOnSale> arrayList, String link){
+        for (int i = 0; i < arrayList.size(); i++){
+            if(arrayList.get(i).jsonLink == link)
+                return false;
+        }
+        return true;
     }
 
 }

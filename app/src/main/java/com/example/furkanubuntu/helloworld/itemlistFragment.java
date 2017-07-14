@@ -1,5 +1,6 @@
 package com.example.furkanubuntu.helloworld;
 
+import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.content.Context;
@@ -46,6 +47,12 @@ import java.util.ArrayList;
  */
 
 public class itemlistFragment extends Fragment {
+    OnFavoritesAdded mCallback;
+
+    // Container Activity must implement this interface
+    public interface OnFavoritesAdded {
+        void onFavButtonPressed(String description, String link , String department);
+    }
 
     JsonAdapter adapter;
     ArrayList<JsonItemOnSale> arrayOfGoods;
@@ -55,7 +62,7 @@ public class itemlistFragment extends Fragment {
     FragmentManager fragmentManager;
     public static final String choiceString = "ARG_PAGE";
     //String imageSize = "Lets see i think i will need this later"; //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    String apiKey = "AIzaSyAwL2u9ByNL9coBouyJBjtx3UXmb_mtC50"; //"AIzaSyCj4Ok-oVrrVJassta4kX1dugbtGZTxD9A"; // //"AIzaSyCFrT2Vp7pqSBbTecdlzO_bpNkj52iZ04Y";//
+    String apiKey = "AIzaSyCFrT2Vp7pqSBbTecdlzO_bpNkj52iZ04Y"; //"AIzaSyCj4Ok-oVrrVJassta4kX1dugbtGZTxD9A"; // "AIzaSyAwL2u9ByNL9coBouyJBjtx3UXmb_mtC50"; // ////
     String cx = "000741119430587044101:2fdfbkejafg";
     String fileType = "jpg";
     String searchType = "image";
@@ -67,6 +74,7 @@ public class itemlistFragment extends Fragment {
     SearchView searchView;
     String searchInput = "";
     String aSyncTaskType = "normal";
+    String departmentName;
 
     public static itemlistFragment newInstance(int choice) {
         Bundle args = new Bundle();
@@ -74,6 +82,17 @@ public class itemlistFragment extends Fragment {
         itemlistFragment fragment = new itemlistFragment();
         fragment.setArguments(args);
         return fragment;
+    }
+
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        try {
+            mCallback = (OnFavoritesAdded) activity;
+        } catch (ClassCastException e) {
+            throw new ClassCastException(activity.toString()
+                    + " must implement OnFavButtonClicked");
+        }
     }
 
     @Override
@@ -86,6 +105,7 @@ public class itemlistFragment extends Fragment {
 
         switch (getArguments().getInt(choiceString)) {
             case 2:
+                departmentName = "booksaudiobooks";
                 searchCriteria = "books+audiobooks";
                 combinedUrl = "https://www.googleapis.com/customsearch/v1?key=" + apiKey + "&cx=" + cx + "&q=" + searchCriteria
                         + "&searchType=" + searchType + "&fileType=" + fileType + "&alt=json";
@@ -94,6 +114,7 @@ public class itemlistFragment extends Fragment {
                 aSyncTask.execute();
                 break;
             case 3:
+                departmentName = "moviestv";
                 searchCriteria = "movieposters";
                 combinedUrl = "https://www.googleapis.com/customsearch/v1?key=" + apiKey + "&cx=" + cx + "&q=" + searchCriteria
                         + "&searchType=" + searchType + "&fileType=" + fileType + "&alt=json";
@@ -102,6 +123,7 @@ public class itemlistFragment extends Fragment {
                 aSyncTask1.execute();
                 break;
             case 4:
+                departmentName = "music";
                 searchCriteria = "bestalbumcovers";
                 combinedUrl = "https://www.googleapis.com/customsearch/v1?key=" + apiKey + "&cx=" + cx + "&q=" + searchCriteria
                         + "&searchType=" + searchType + "&fileType=" + fileType + "&alt=json";
@@ -110,6 +132,7 @@ public class itemlistFragment extends Fragment {
                 aSyncTask2.execute();
                 break;
             case 5:
+                departmentName = "videogames";
                 searchCriteria = "videogamecovers";
                 combinedUrl = "https://www.googleapis.com/customsearch/v1?key=" + apiKey + "&cx=" + cx + "&q=" + searchCriteria
                         + "&searchType=" + searchType + "&fileType=" + fileType + "&alt=json";
@@ -118,6 +141,7 @@ public class itemlistFragment extends Fragment {
                 aSyncTask3.execute();
                 break;
             case 6:
+                departmentName = "computersoffice";
                 searchCriteria = "laptops";
                 combinedUrl = "https://www.googleapis.com/customsearch/v1?key=" + apiKey + "&cx=" + cx + "&q=" + searchCriteria
                         + "&searchType=" + searchType + "&fileType=" + fileType + "&alt=json";
@@ -126,6 +150,7 @@ public class itemlistFragment extends Fragment {
                 aSyncTask4.execute();
                 break;
             case 7:
+                departmentName = "electronics";
                 searchCriteria = "iphone+samsung";
                 combinedUrl = "https://www.googleapis.com/customsearch/v1?key=" + apiKey + "&cx=" + cx + "&q=" + searchCriteria
                         + "&searchType=" + searchType + "&fileType=" + fileType + "&alt=json";
@@ -134,6 +159,7 @@ public class itemlistFragment extends Fragment {
                 aSyncTask5.execute();
                 break;
             case 8:
+                departmentName = "garden";
                 searchCriteria = "gardening+tools";
                 combinedUrl = "https://www.googleapis.com/customsearch/v1?key=" + apiKey + "&cx=" + cx + "&q=" + searchCriteria
                         + "&searchType=" + searchType + "&fileType=" + fileType + "&alt=json";
@@ -142,6 +168,7 @@ public class itemlistFragment extends Fragment {
                 aSyncTask6.execute();
                 break;
             case 9:
+                departmentName = "grocery";
                 searchCriteria = "grocery+items";
                 combinedUrl = "https://www.googleapis.com/customsearch/v1?key=" + apiKey + "&cx=" + cx + "&q=" + searchCriteria
                         + "&searchType=" + searchType + "&fileType=" + fileType + "&alt=json";
@@ -150,6 +177,7 @@ public class itemlistFragment extends Fragment {
                 aSyncTask7.execute();
                 break;
             case 10:
+                departmentName = "beauty";
                 searchCriteria = "beauty+product+care";
                 combinedUrl = "https://www.googleapis.com/customsearch/v1?key=" + apiKey + "&cx=" + cx + "&q=" + searchCriteria
                         + "&searchType=" + searchType + "&fileType=" + fileType + "&alt=json";
@@ -158,6 +186,7 @@ public class itemlistFragment extends Fragment {
                 aSyncTask8.execute();
                 break;
             case 11:
+                departmentName = "kids";
                 searchCriteria = "toys";
                 combinedUrl = "https://www.googleapis.com/customsearch/v1?key=" + apiKey + "&cx=" + cx + "&q=" + searchCriteria
                         + "&searchType=" + searchType + "&fileType=" + fileType + "&alt=json";
@@ -166,6 +195,7 @@ public class itemlistFragment extends Fragment {
                 aSyncTask9.execute();
                 break;
             case 12:
+                departmentName = "clothing";
                 searchCriteria = "clothing+shoes+product";
                 combinedUrl = "https://www.googleapis.com/customsearch/v1?key=" + apiKey + "&cx=" + cx + "&q=" + searchCriteria
                         + "&searchType=" + searchType + "&fileType=" + fileType + "&alt=json";
@@ -174,6 +204,7 @@ public class itemlistFragment extends Fragment {
                 aSyncTask10.execute();
                 break;
             case 13:
+                departmentName = "sportsoutdoors";
                 searchCriteria = "sports+products";
                 combinedUrl = "https://www.googleapis.com/customsearch/v1?key=" + apiKey + "&cx=" + cx + "&q=" + searchCriteria
                         + "&searchType=" + searchType + "&fileType=" + fileType + "&alt=json";
@@ -195,8 +226,7 @@ public class itemlistFragment extends Fragment {
         adapter = new JsonAdapter(view.getContext(), arrayOfGoods);
         progressBar = (ProgressBar) view.findViewById(R.id.progressBar);
         progressBar.setVisibility(View.GONE);
-        progressBar.getIndeterminateDrawable()
-                .setColorFilter(ContextCompat.getColor(view.getContext(), R.color.black), PorterDuff.Mode.SRC_IN );
+        progressBar.getIndeterminateDrawable().setColorFilter(ContextCompat.getColor(view.getContext(), R.color.black), PorterDuff.Mode.SRC_IN );
         searchView = (SearchView) getActivity().findViewById(R.id.searchBar);
 
 
@@ -234,7 +264,11 @@ public class itemlistFragment extends Fragment {
             public boolean onQueryTextSubmit(String userInput) {
                 if(userInput.length() > 0){
                     if(wordChecker(userInput)){
-                        searchCriteria = searchCriteria + "+" + userInput;
+                        MainActivity main = (MainActivity) getActivity();
+                        DbHelper helperInstance = main.getInstance();
+                        helperInstance.addSearch(userInput, departmentName, main.userID);
+                        helperInstance.addSearchCount(departmentName, main.userID);
+                        searchCriteria = departmentName + "+" + userInput;
                         combinedUrl = "https://www.googleapis.com/customsearch/v1?key=" + apiKey + "&cx=" + cx + "&q=" + searchCriteria
                                 + "&searchType=" + searchType + "&fileType=" + fileType + "&alt=json";
                         aSyncTaskType = "search";
@@ -333,7 +367,7 @@ public class itemlistFragment extends Fragment {
                     for (int i = 0; i < 10; i++) {
                         Log.d("MYTAG", jsonArray.getJSONObject(i).getString("link"));
                         arrayOfGoods.add(new JsonItemOnSale("%35", "450$", jsonArray.getJSONObject(i).getString("title"),
-                                jsonArray.getJSONObject(i).getString("link"),searchCriteria));
+                                jsonArray.getJSONObject(i).getString("link"),departmentName));
                     }
 
                 } catch (JSONException e) {
@@ -380,6 +414,9 @@ public class itemlistFragment extends Fragment {
     private class ItemClickListener implements ListView.OnItemClickListener {
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+            MainActivity main = (MainActivity) getActivity();
+            DbHelper helperInstance = main.getInstance();
+            helperInstance.addClickCount(departmentName,main.userID);
             startProductActivity(position);
         }
     }
@@ -388,6 +425,7 @@ public class itemlistFragment extends Fragment {
         JsonAdapter(Context context, ArrayList<JsonItemOnSale> goods){
             super(context,0,goods);
         }
+
         @NonNull
         @Override
         public View getView(int position, View convertView, @NonNull ViewGroup parent)
@@ -411,6 +449,7 @@ public class itemlistFragment extends Fragment {
                     MainActivity main = (MainActivity) getActivity();
                     DbHelper helperInstance = main.getInstance();
                     helperInstance.addWishlist(anItem.jsonLink, anItem.description, anItem.department,main.userID);
+                    mCallback.onFavButtonPressed(anItem.description, anItem.jsonLink, anItem.department);
                 }
             });
 

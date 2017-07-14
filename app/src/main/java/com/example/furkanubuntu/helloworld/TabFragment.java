@@ -4,9 +4,13 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.PorterDuff;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,11 +19,28 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
+import java.util.Set;
 
 /**
  * Created by furkanubuntu on 6/28/17.
@@ -30,11 +51,26 @@ public class TabFragment extends Fragment {
     public static final String ARG_PAGE = "ARG_PAGE";
     ArrayList<DrawerItem> userTabSelectionItems;
     ArrayList<JsonItemOnSale> wishlistTabSelectionItems;
+    ArrayList<JsonItemOnSale> tempWishlistItems;
+    ArrayList<JsonItemOnSale> homeTabSelectionItems;
     DrawerAdapter userTabAdapter;
     ListView wishlistTabListView;
     ListView userTabListView;
     WishlistAdapter wishlistTabAdapter;
+    ListView homeTabListView;
+    HomeTabAdapter homeTabAdapter;
     View view;
+    String maxDepartment = "";
+    ProgressBar progressBar;
+    String combinedUrl;
+
+    OnFavoritesAdded mCallback;
+
+    // Container Activity must implement this interface
+    public interface OnFavoritesAdded {
+        void onFavButtonPressed(String description, String link , String department);
+    }
+
 
     private int mPage;
 
@@ -61,6 +97,42 @@ public class TabFragment extends Fragment {
         MainActivity main = (MainActivity) getActivity();
         DbHelper helperInstance = main.getInstance();
         wishlistTabSelectionItems = helperInstance.readWishlist(main.userID);
+
+        tempWishlistItems = helperInstance.readWishlist(main.userID);
+        HashMap<String, Integer> hmap = new HashMap<>();
+        for(int i = 0; i < tempWishlistItems.size(); i++){
+            if(hmap.get(tempWishlistItems.get(i).department) == null)
+                hmap.put(tempWishlistItems.get(i).department, 1);
+            else
+                hmap.put(tempWishlistItems.get(i).department,hmap.get(tempWishlistItems.get(i).department) + 1);
+        }
+        int max = 0;
+        Set set = hmap.entrySet();
+        Iterator iterator = set.iterator();
+        while(iterator.hasNext()) {
+            Map.Entry entry = (Map.Entry)iterator.next();
+            if((int) entry.getValue() > max){
+                max = (int) entry.getValue();
+                maxDepartment = (String) entry.getKey();
+            }
+        }
+
+        Random randomGen = new Random();
+        int randomNo = randomGen.nextInt(11) + 25;
+        String start = "" + randomNo;
+        String apiKey = "AIzaSyCFrT2Vp7pqSBbTecdlzO_bpNkj52iZ04Y"; //"AIzaSyCj4Ok-oVrrVJassta4kX1dugbtGZTxD9A"; // "AIzaSyAwL2u9ByNL9coBouyJBjtx3UXmb_mtC50"; // ////
+        String cx = "000741119430587044101:2fdfbkejafg";
+        String fileType = "jpg";
+        String searchType = "image";
+        String searchCriteria = maxDepartment;
+        combinedUrl = "https://www.googleapis.com/customsearch/v1?key=" + apiKey + "&cx=" + cx + "&q=" + searchCriteria
+                + "&searchType=" + searchType + "&start=" + start +"&fileType=" + fileType + "&alt=json";
+        HomeTabASyncTask aSyncTask = new HomeTabASyncTask(combinedUrl);
+        aSyncTask.execute();
+
+        homeTabAdapter = new HomeTabAdapter(getActivity(), homeTabSelectionItems);
+        wishlistTabAdapter = new WishlistAdapter(getActivity(),wishlistTabSelectionItems);
+        userTabAdapter = new DrawerAdapter(getActivity(), userTabSelectionItems);
     }
 
     public void selectUserTabItem(int position){
@@ -73,6 +145,7 @@ public class TabFragment extends Fragment {
                 break;
         }
     }
+
 
     public void selectWishlistTabItem(int position){
         Intent intent = new Intent(getActivity(),ProductActivity.class);
@@ -104,17 +177,24 @@ public class TabFragment extends Fragment {
 
         if(mPage == 2) {
             view = inflater.inflate(R.layout.account_tab_fragment, container, false);
-            userTabAdapter = new DrawerAdapter(view.getContext(), userTabSelectionItems);
             userTabListView = (ListView) view.findViewById(R.id.accountTabSelections);
             userTabListView.setAdapter(userTabAdapter);
             userTabListView.setOnItemClickListener(new UserTabItemClickListener());
         }
         else if (mPage == 1){
             view = inflater.inflate(R.layout.wishlist_tab_fragment,container,false);
-            wishlistTabAdapter = new WishlistAdapter(view.getContext(),wishlistTabSelectionItems);
             wishlistTabListView = (ListView) view.findViewById(R.id.wishlistTabSelections);
             wishlistTabListView.setAdapter(wishlistTabAdapter);
             wishlistTabListView.setOnItemClickListener(new UserTabItemClickListener());
+            wishlistTabAdapter.notifyDataSetChanged();
+        }
+        else{
+            view = inflater.inflate(R.layout.home_tab_fragment,container,false);
+            progressBar = (ProgressBar) view.findViewById(R.id.progressBar2);
+            progressBar.setVisibility(View.GONE);
+            progressBar.getIndeterminateDrawable().setColorFilter(ContextCompat.getColor(view.getContext(), R.color.black), PorterDuff.Mode.SRC_IN );
+            homeTabListView = (ListView) view.findViewById(R.id.recommendedItemList);
+            homeTabListView.setAdapter(homeTabAdapter);
         }
         return view;
     }
@@ -125,7 +205,7 @@ public class TabFragment extends Fragment {
         }
 
         @NonNull
-        public View getView(final int position, View convertView, ViewGroup parent)
+        public View getView(final int position, View convertView, @NonNull ViewGroup parent)
         {
 
             if(convertView == null){
@@ -167,6 +247,120 @@ public class TabFragment extends Fragment {
             description.setText(wishlistTabSelectionItems.get(position).description);
 
             return convertView;
+        }
+    }
+
+    class HomeTabAdapter extends ArrayAdapter<JsonItemOnSale> {
+        HomeTabAdapter(Context context, ArrayList<JsonItemOnSale> goods){
+            super(context,0,goods);
+        }
+
+        @NonNull
+        @Override
+        public View getView(int position, View convertView, @NonNull ViewGroup parent)
+        {
+
+            final JsonItemOnSale anItem = getItem(position);
+
+            if(convertView == null){
+                convertView = LayoutInflater.from(getActivity()).inflate(R.layout.hwlayout,parent,false);
+            }
+
+            TextView discountAmount = (TextView) convertView.findViewById(R.id.discountText);
+            TextView price = (TextView) convertView.findViewById(R.id.priceText);
+            TextView description = (TextView) convertView.findViewById(R.id.infoText);
+            ImageView productPic = (ImageView) convertView.findViewById(R.id.productPic);
+            Button addFavButton = (Button) convertView.findViewById(R.id.favButton);
+
+            addFavButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    MainActivity main = (MainActivity) getActivity();
+                    DbHelper helperInstance = main.getInstance();
+                    helperInstance.addWishlist(anItem.jsonLink, anItem.description, anItem.department,main.userID);
+                    mCallback.onFavButtonPressed(anItem.description, anItem.jsonLink, anItem.department);
+                }
+            });
+
+            discountAmount.setText(anItem.discount);
+            price.setText(anItem.price);
+            description.setText(anItem.description);
+            Picasso.with(convertView.getContext()).load(anItem.jsonLink).into(productPic);
+            //productPic.setAdapter(new imageScrollAdapter(anItem.jsonLink,getContext()));
+
+            return convertView;
+        }
+    }
+
+    class HomeTabASyncTask extends AsyncTask {
+        String urlString;
+        int exceptionNo;
+
+        HomeTabASyncTask(String urlString) {
+            super();
+            this.urlString = urlString;
+        }
+
+        @Override
+        protected Object doInBackground(Object[] objects) {
+            URL url = null;
+            StringBuilder builder = null;
+            JSONArray jsonArray;
+            Log.d("link", urlString);
+            try {
+                url = new URL(urlString);
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            }
+
+            try {
+                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                connection.connect();
+
+                if (connection.getResponseCode() != 200) {
+                    throw new IOException(connection.getResponseMessage());
+                }
+
+                String line;
+                BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+                builder = new StringBuilder();
+                while ((line = reader.readLine()) != null) {
+                    builder.append(line);
+                }
+            } catch (IOException e) {
+                exceptionNo = 1;
+            }
+
+            JSONObject jsonObject = null;
+
+            try {
+                jsonObject = new JSONObject(builder.toString());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            if (jsonObject != null) {
+                try {
+                    jsonArray = jsonObject.getJSONArray("items");
+                    for (int i = 0; i < 10; i++) {
+                        Log.d("MYTAG", jsonArray.getJSONObject(i).getString("link"));
+                        homeTabSelectionItems.add(new JsonItemOnSale("%35", "450$", jsonArray.getJSONObject(i).getString("title"),
+                                jsonArray.getJSONObject(i).getString("link"), maxDepartment));
+                    }
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+            return jsonObject;
+        }
+
+        @Override
+        protected void onPostExecute(Object o) {
+            super.onPostExecute(o);
+            Log.d("hello", "In post execute");
+            homeTabAdapter.notifyDataSetChanged();
+            progressBar.setVisibility(View.GONE);
         }
     }
 }

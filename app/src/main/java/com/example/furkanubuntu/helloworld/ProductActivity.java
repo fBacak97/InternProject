@@ -50,7 +50,7 @@ public class ProductActivity extends AppCompatActivity {
     TextView header;
     TextView description;
     imageScrollAdapter adapter;
-    String apiKey =  "AIzaSyAwL2u9ByNL9coBouyJBjtx3UXmb_mtC50"; //"AIzaSyCj4Ok-oVrrVJassta4kX1dugbtGZTxD9A";  // //"AIzaSyCFrT2Vp7pqSBbTecdlzO_bpNkj52iZ04Y";//
+    String apiKey = "AIzaSyCFrT2Vp7pqSBbTecdlzO_bpNkj52iZ04Y"; //"AIzaSyCj4Ok-oVrrVJassta4kX1dugbtGZTxD9A"; // "AIzaSyAwL2u9ByNL9coBouyJBjtx3UXmb_mtC50"; //
     String cx = "000741119430587044101:2fdfbkejafg";
     int randomNo;
     String start;
@@ -148,7 +148,6 @@ public class ProductActivity extends AppCompatActivity {
     public void setupDrawerToggle(){
         mDrawerToggle = new ActionBarDrawerToggle(this,productDrawerLayout,toolbar,R.string.drawerTitle, R.string.drawerTitle){
 
-            /** Called when a drawer has settled in a completely closed state. */
             public void onDrawerClosed(View view) {
                 super.onDrawerClosed(view);
                 if(currentDrawerContent.equals("mainPage")) {
@@ -161,7 +160,6 @@ public class ProductActivity extends AppCompatActivity {
                 }
             }
 
-            /** Called when a drawer has settled in a completely open state. */
             public void onDrawerOpened(View drawerView)
             {
                 super.onDrawerOpened(drawerView);
