@@ -19,6 +19,7 @@ import android.widget.AdapterView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.SearchView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -41,6 +42,7 @@ public class MainActivity extends AppCompatActivity implements itemlistFragment.
     int userID;
     TabLayout tabLayout;
     android.support.v4.view.PagerAdapter pagerAdapter;
+    TextView mainHeader;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,12 +60,32 @@ public class MainActivity extends AppCompatActivity implements itemlistFragment.
         viewPager.setAdapter(pagerAdapter);
         searchView = (SearchView) findViewById(R.id.searchBar);
         searchView.setVisibility(View.INVISIBLE);
+        mainHeader = (TextView) findViewById(R.id.mainHeader);
 
         tabLayout = (TabLayout) findViewById(R.id.sliding_tabs);
         tabLayout.setupWithViewPager(viewPager);
         tabLayout.getTabAt(0).setIcon(R.drawable.home);
         tabLayout.getTabAt(1).setIcon(R.drawable.favorite);
         tabLayout.getTabAt(2).setIcon(R.drawable.account);
+        tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+            @Override
+            public void onTabSelected(TabLayout.Tab tab) {
+                if (tab.getPosition() == 0)
+                    mainHeader.setText("Recommended Items");
+                else if (tab.getPosition() == 1)
+                    mainHeader.setText("My Wishlist");
+                else if (tab.getPosition() == 2)
+                    mainHeader.setText("My Account");
+            }
+
+            @Override
+            public void onTabUnselected(TabLayout.Tab tab) {
+            }
+
+            @Override
+            public void onTabReselected(TabLayout.Tab tab) {
+            }
+        });
 
         //Divider copy paste from stackOverflow study carefully!
         View linearRoot = tabLayout.getChildAt(0);
@@ -124,7 +146,7 @@ public class MainActivity extends AppCompatActivity implements itemlistFragment.
         //----- Toolbar ---------
         setupToolbar();
         getSupportActionBar().setDisplayHomeAsUpEnabled(false);
-        getSupportActionBar().setHomeButtonEnabled(true);
+        getSupportActionBar().setHomeButtonEnabled(true);getSupportFragmentManager().executePendingTransactions();
         setupDrawerToggle();
         drawerLayout.addDrawerListener(mDrawerToggle);
 
@@ -134,6 +156,7 @@ public class MainActivity extends AppCompatActivity implements itemlistFragment.
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         fragmentTransaction.replace(R.id.productFragment,fragment).hide(fragment);
         fragmentTransaction.commit();
+
     }
 
     @Override

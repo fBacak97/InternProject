@@ -14,6 +14,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -37,7 +38,6 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
@@ -56,13 +56,27 @@ public class TabFragment extends Fragment {
     DrawerAdapter userTabAdapter;
     ListView wishlistTabListView;
     ListView userTabListView;
-    WishlistAdapter wishlistTabAdapter;
+    public WishlistAdapter wishlistTabAdapter;
     ListView homeTabListView;
     HomeTabAdapter homeTabAdapter;
+    ProgressBar progressBar = null;
     View view;
-    String maxDepartment = "";
-    ProgressBar progressBar;
     String combinedUrl;
+    String wishlistMaxDepartment;
+    String searchesMaxDepartment;
+    String clicksMaxDepartment;
+    String retrieveType = "wishlist";
+    HomeTabASyncTask searchASyncTask;
+    int scrollCount = 0;
+    Random randomGen = new Random();
+    int randomNo = randomGen.nextInt(11) + 25;
+    String start = "" + randomNo;
+    String apiKey = "AIzaSyAwL2u9ByNL9coBouyJBjtx3UXmb_mtC50"; // "AIzaSyCj4Ok-oVrrVJassta4kX1dugbtGZTxD9A"; // "AIzaSyCFrT2Vp7pqSBbTecdlzO_bpNkj52iZ04Y"; // //  // ////
+    String cx = "000741119430587044101:2fdfbkejafg";
+    String fileType = "jpg";
+    String searchType = "image";
+    String searchCriteria;
+    private int mPage;
 
     OnFavoritesAdded mCallback;
 
@@ -71,8 +85,6 @@ public class TabFragment extends Fragment {
         void onFavButtonPressed(String description, String link , String department);
     }
 
-
-    private int mPage;
 
     public static TabFragment newInstance(int page) {
         Bundle args = new Bundle();
@@ -98,6 +110,8 @@ public class TabFragment extends Fragment {
         DbHelper helperInstance = main.getInstance();
         wishlistTabSelectionItems = helperInstance.readWishlist(main.userID);
 
+        homeTabSelectionItems = new ArrayList<>();
+
         tempWishlistItems = helperInstance.readWishlist(main.userID);
         HashMap<String, Integer> hmap = new HashMap<>();
         for(int i = 0; i < tempWishlistItems.size(); i++){
@@ -113,18 +127,11 @@ public class TabFragment extends Fragment {
             Map.Entry entry = (Map.Entry)iterator.next();
             if((int) entry.getValue() > max){
                 max = (int) entry.getValue();
-                maxDepartment = (String) entry.getKey();
+                wishlistMaxDepartment = (String) entry.getKey();
             }
         }
 
-        Random randomGen = new Random();
-        int randomNo = randomGen.nextInt(11) + 25;
-        String start = "" + randomNo;
-        String apiKey = "AIzaSyCFrT2Vp7pqSBbTecdlzO_bpNkj52iZ04Y"; //"AIzaSyCj4Ok-oVrrVJassta4kX1dugbtGZTxD9A"; // "AIzaSyAwL2u9ByNL9coBouyJBjtx3UXmb_mtC50"; // ////
-        String cx = "000741119430587044101:2fdfbkejafg";
-        String fileType = "jpg";
-        String searchType = "image";
-        String searchCriteria = maxDepartment;
+        searchCriteria = wishlistMaxDepartment;
         combinedUrl = "https://www.googleapis.com/customsearch/v1?key=" + apiKey + "&cx=" + cx + "&q=" + searchCriteria
                 + "&searchType=" + searchType + "&start=" + start +"&fileType=" + fileType + "&alt=json";
         HomeTabASyncTask aSyncTask = new HomeTabASyncTask(combinedUrl);
@@ -152,6 +159,8 @@ public class TabFragment extends Fragment {
         intent.putExtra(Intent.EXTRA_TEXT,wishlistTabSelectionItems.get(position).jsonLink);
         intent.putExtra(Intent.EXTRA_TITLE,wishlistTabSelectionItems.get(position).department);
         intent.putExtra(Intent.EXTRA_SUBJECT,wishlistTabSelectionItems.get(position).description);
+        MainActivity main = (MainActivity) getActivity();
+        intent.putExtra(Intent.EXTRA_TEMPLATE,main.userID);
         getActivity().startActivity(intent);
     }
 
@@ -174,7 +183,6 @@ public class TabFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-
         if(mPage == 2) {
             view = inflater.inflate(R.layout.account_tab_fragment, container, false);
             userTabListView = (ListView) view.findViewById(R.id.accountTabSelections);
@@ -189,11 +197,55 @@ public class TabFragment extends Fragment {
             wishlistTabAdapter.notifyDataSetChanged();
         }
         else{
+            MainActivity main = (MainActivity) getActivity();
+            DbHelper helperInstance = main.getInstance();
             view = inflater.inflate(R.layout.home_tab_fragment,container,false);
-            progressBar = (ProgressBar) view.findViewById(R.id.progressBar2);
+            progressBar = (ProgressBar) view.findViewById(R.id.progressBarTwo);
             progressBar.setVisibility(View.GONE);
             progressBar.getIndeterminateDrawable().setColorFilter(ContextCompat.getColor(view.getContext(), R.color.black), PorterDuff.Mode.SRC_IN );
             homeTabListView = (ListView) view.findViewById(R.id.recommendedItemList);
+            combinedUrl = "https://www.googleapis.com/customsearch/v1?key=" + apiKey + "&cx=" + cx + "&q=" + searchCriteria
+                    + "&searchType=" + searchType + "&fileType=" + fileType + "&alt=json";
+            retrieveType = "searches";
+            searchesMaxDepartment = helperInstance.readMaxSearchCount(main.userID);
+            final ArrayList<String> searchList = helperInstance.readSearches(searchesMaxDepartment,main.userID);
+            clicksMaxDepartment = helperInstance.readMaxClickCount(main.userID);
+            homeTabListView.setOnScrollListener(new AbsListView.OnScrollListener() {
+                @Override
+                public void onScrollStateChanged(AbsListView absListView, int i) {
+                }
+
+                @Override
+                public void onScroll(AbsListView absListView, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+                    int lastInScreen = firstVisibleItem + visibleItemCount;
+                    if (searchList != null){
+                        if (lastInScreen == totalItemCount && scrollCount < searchList.size())
+                        {
+                            if (searchASyncTask == null || searchASyncTask.getStatus() != AsyncTask.Status.RUNNING) {
+                                searchCriteria = searchesMaxDepartment + searchList.get(scrollCount);
+                                combinedUrl = "https://www.googleapis.com/customsearch/v1?key=" + apiKey + "&cx=" + cx + "&q=" + searchCriteria
+                                        + "&searchType=" + searchType + "&fileType=" + fileType + "&alt=json";
+                                progressBar.setVisibility(View.VISIBLE);
+                                searchASyncTask = new HomeTabASyncTask(combinedUrl);
+                                searchASyncTask.execute();
+                                scrollCount++;
+                            }
+                        }
+                        else if(lastInScreen == totalItemCount && scrollCount == searchList.size()){
+                            if (searchASyncTask == null || searchASyncTask.getStatus() != AsyncTask.Status.RUNNING) {
+                                searchCriteria = clicksMaxDepartment;
+                                combinedUrl = "https://www.googleapis.com/customsearch/v1?key=" + apiKey + "&cx=" + cx + "&q=" + searchCriteria
+                                        + "&searchType=" + searchType + "&fileType=" + fileType + "&alt=json";
+                                progressBar.setVisibility(View.VISIBLE);
+                                searchASyncTask = new HomeTabASyncTask(combinedUrl);
+                                searchASyncTask.execute();
+                                scrollCount++;
+                            }
+                        }
+                    }
+                }
+            });
+            homeTabListView.setVisibility(View.VISIBLE);
             homeTabListView.setAdapter(homeTabAdapter);
         }
         return view;
@@ -286,7 +338,6 @@ public class TabFragment extends Fragment {
             price.setText(anItem.price);
             description.setText(anItem.description);
             Picasso.with(convertView.getContext()).load(anItem.jsonLink).into(productPic);
-            //productPic.setAdapter(new imageScrollAdapter(anItem.jsonLink,getContext()));
 
             return convertView;
         }
@@ -342,10 +393,18 @@ public class TabFragment extends Fragment {
             if (jsonObject != null) {
                 try {
                     jsonArray = jsonObject.getJSONArray("items");
+
                     for (int i = 0; i < 10; i++) {
                         Log.d("MYTAG", jsonArray.getJSONObject(i).getString("link"));
-                        homeTabSelectionItems.add(new JsonItemOnSale("%35", "450$", jsonArray.getJSONObject(i).getString("title"),
-                                jsonArray.getJSONObject(i).getString("link"), maxDepartment));
+                        if(retrieveType == "wishlist")
+                            homeTabSelectionItems.add(new JsonItemOnSale("%35", "450$", jsonArray.getJSONObject(i).getString("title"),
+                                    jsonArray.getJSONObject(i).getString("link"), wishlistMaxDepartment));
+                        else if (retrieveType == "searches")
+                            homeTabSelectionItems.add(new JsonItemOnSale("%35", "450$", jsonArray.getJSONObject(i).getString("title"),
+                                    jsonArray.getJSONObject(i).getString("link"), searchesMaxDepartment));
+                        else
+                            homeTabSelectionItems.add(new JsonItemOnSale("%35", "450$", jsonArray.getJSONObject(i).getString("title"),
+                                    jsonArray.getJSONObject(i).getString("link"), clicksMaxDepartment));
                     }
 
                 } catch (JSONException e) {
@@ -360,7 +419,8 @@ public class TabFragment extends Fragment {
             super.onPostExecute(o);
             Log.d("hello", "In post execute");
             homeTabAdapter.notifyDataSetChanged();
-            progressBar.setVisibility(View.GONE);
+            if(progressBar != null)
+                progressBar.setVisibility(View.INVISIBLE);
         }
     }
 }

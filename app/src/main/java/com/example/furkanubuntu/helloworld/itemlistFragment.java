@@ -62,7 +62,7 @@ public class itemlistFragment extends Fragment {
     FragmentManager fragmentManager;
     public static final String choiceString = "ARG_PAGE";
     //String imageSize = "Lets see i think i will need this later"; //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    String apiKey = "AIzaSyCFrT2Vp7pqSBbTecdlzO_bpNkj52iZ04Y"; //"AIzaSyCj4Ok-oVrrVJassta4kX1dugbtGZTxD9A"; // "AIzaSyAwL2u9ByNL9coBouyJBjtx3UXmb_mtC50"; // ////
+    String apiKey = "AIzaSyAwL2u9ByNL9coBouyJBjtx3UXmb_mtC50"; // "AIzaSyCj4Ok-oVrrVJassta4kX1dugbtGZTxD9A"; //"AIzaSyCFrT2Vp7pqSBbTecdlzO_bpNkj52iZ04Y"; // //  // ////
     String cx = "000741119430587044101:2fdfbkejafg";
     String fileType = "jpg";
     String searchType = "image";
@@ -391,6 +391,8 @@ public class itemlistFragment extends Fragment {
         intent.putExtra(Intent.EXTRA_TEXT,arrayOfGoods.get(position).jsonLink);
         intent.putExtra(Intent.EXTRA_TITLE,searchCriteria);
         intent.putExtra(Intent.EXTRA_SUBJECT,arrayOfGoods.get(position).description);
+        MainActivity main = (MainActivity) getActivity();
+        intent.putExtra(Intent.EXTRA_TEMPLATE, main.userID);
         getActivity().startActivity(intent);
     }
 

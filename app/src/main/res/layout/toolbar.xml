@@ -18,16 +18,19 @@
             android:id="@+id/mainHeader"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/app_name"
+            android:text="Recommended Items"
             android:gravity="center_vertical|start"
             android:layout_centerVertical="true"
             android:layout_alignParentLeft="true"
             android:layout_alignParentStart="true"
-            android:showAsAction="always" />
+            android:layout_toLeftOf="@+id/searchBar"
+            android:layout_toStartOf="@+id/searchBar"
+            android:showAsAction="always"
+            android:textSize="18sp"/>
 
         <SearchView
             android:id="@+id/searchBar"
-            android:layout_width="200dp"
+            android:layout_width="150dp"
             android:layout_height="wrap_content"
             android:background="#C8E6C9"
             android:queryHint="Search for items"

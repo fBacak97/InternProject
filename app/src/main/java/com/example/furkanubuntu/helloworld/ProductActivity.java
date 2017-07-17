@@ -50,9 +50,10 @@ public class ProductActivity extends AppCompatActivity {
     TextView header;
     TextView description;
     imageScrollAdapter adapter;
-    String apiKey = "AIzaSyCFrT2Vp7pqSBbTecdlzO_bpNkj52iZ04Y"; //"AIzaSyCj4Ok-oVrrVJassta4kX1dugbtGZTxD9A"; // "AIzaSyAwL2u9ByNL9coBouyJBjtx3UXmb_mtC50"; //
+    String apiKey = "AIzaSyAwL2u9ByNL9coBouyJBjtx3UXmb_mtC50"; //"AIzaSyCj4Ok-oVrrVJassta4kX1dugbtGZTxD9A";  //"AIzaSyCFrT2Vp7pqSBbTecdlzO_bpNkj52iZ04Y"; // //  //
     String cx = "000741119430587044101:2fdfbkejafg";
     int randomNo;
+    int userID;
     String start;
     String fileType = "jpg";
     String searchType = "image";
@@ -133,6 +134,7 @@ public class ProductActivity extends AppCompatActivity {
         searchCriteria = intent.getStringExtra(Intent.EXTRA_TITLE);
         description.setText(intent.getStringExtra(Intent.EXTRA_SUBJECT));
         header.setText(intent.getStringExtra(Intent.EXTRA_SUBJECT));
+        userID = intent.getIntExtra(Intent.EXTRA_TEMPLATE, 0);
         combinedUrl = "https://www.googleapis.com/customsearch/v1?key=" + apiKey + "&cx=" + cx + "&q=" + searchCriteria
                 + "&searchType=" + searchType + "&start=" + start + "&fileType=" + fileType + "&alt=json";
         UniqueASyncTask aSyncTask = new UniqueASyncTask(combinedUrl);
@@ -177,6 +179,7 @@ public class ProductActivity extends AppCompatActivity {
             else {
                 Intent intent = new Intent(this,MainActivity.class);
                 intent.putExtra("buttonNo",position);
+                intent.putExtra(Intent.EXTRA_TITLE, userID);
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 startActivity(intent);
             }
@@ -185,7 +188,9 @@ public class ProductActivity extends AppCompatActivity {
             switch(position){
                 case 1:
                     previousDrawerView();
-                    startActivity(new Intent(this, MainActivity.class));
+                    Intent intent = new Intent(this,MainActivity.class);
+                    intent.putExtra(Intent.EXTRA_TITLE, userID);
+                    startActivity(intent);
                     break;
                 case 2:
                     drawerAdapter = new DrawerAdapter(this, departmentsList);
