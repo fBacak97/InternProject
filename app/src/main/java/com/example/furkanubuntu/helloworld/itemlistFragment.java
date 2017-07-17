@@ -62,7 +62,7 @@ public class itemlistFragment extends Fragment {
     FragmentManager fragmentManager;
     public static final String choiceString = "ARG_PAGE";
     //String imageSize = "Lets see i think i will need this later"; //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    String apiKey = "AIzaSyAwL2u9ByNL9coBouyJBjtx3UXmb_mtC50"; // "AIzaSyCj4Ok-oVrrVJassta4kX1dugbtGZTxD9A"; //"AIzaSyCFrT2Vp7pqSBbTecdlzO_bpNkj52iZ04Y"; // //  // ////
+    String apiKey = "AIzaSyBianBdkjLEijeQL3T0RTMgTDd9ydL8J7Y"; //"AIzaSyAwL2u9ByNL9coBouyJBjtx3UXmb_mtC50"; // "AIzaSyCj4Ok-oVrrVJassta4kX1dugbtGZTxD9A"; //"AIzaSyCFrT2Vp7pqSBbTecdlzO_bpNkj52iZ04Y";
     String cx = "000741119430587044101:2fdfbkejafg";
     String fileType = "jpg";
     String searchType = "image";

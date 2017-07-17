@@ -50,7 +50,7 @@ public class ProductActivity extends AppCompatActivity {
     TextView header;
     TextView description;
     imageScrollAdapter adapter;
-    String apiKey = "AIzaSyAwL2u9ByNL9coBouyJBjtx3UXmb_mtC50"; //"AIzaSyCj4Ok-oVrrVJassta4kX1dugbtGZTxD9A";  //"AIzaSyCFrT2Vp7pqSBbTecdlzO_bpNkj52iZ04Y"; // //  //
+    String apiKey = "AIzaSyBianBdkjLEijeQL3T0RTMgTDd9ydL8J7Y"; //"AIzaSyAwL2u9ByNL9coBouyJBjtx3UXmb_mtC50"; //"AIzaSyCj4Ok-oVrrVJassta4kX1dugbtGZTxD9A";  //"AIzaSyCFrT2Vp7pqSBbTecdlzO_bpNkj52iZ04Y";
     String cx = "000741119430587044101:2fdfbkejafg";
     int randomNo;
     int userID;

@@ -3,6 +3,7 @@ package com.example.furkanubuntu.helloworld;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.GradientDrawable;
 import android.support.design.widget.TabLayout;
@@ -22,7 +23,11 @@ import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.File;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 
 
 public class MainActivity extends AppCompatActivity implements itemlistFragment.OnFavoritesAdded {
@@ -157,6 +162,8 @@ public class MainActivity extends AppCompatActivity implements itemlistFragment.
         fragmentTransaction.replace(R.id.productFragment,fragment).hide(fragment);
         fragmentTransaction.commit();
 
+        traverseCache(this);
+
     }
 
     @Override
@@ -171,6 +178,28 @@ public class MainActivity extends AppCompatActivity implements itemlistFragment.
             searchView.setVisibility(View.VISIBLE);
         }
         super.onResume();
+    }
+
+
+    public void traverseCache(Context context){
+        try {
+            File dir = new File(context.getCacheDir().getAbsolutePath() + "/picasso-cache");
+            File[] files = dir.listFiles();
+            String todaysDate = DateFormat.getDateInstance().format(new Date()).substring(0,2);
+            for (int i = 0; i < files.length; i++) {
+                String creationDate = DateFormat.getDateInstance().format(new Date(files[i].lastModified())).substring(0,2);
+                if(Integer.parseInt(creationDate) < Integer.parseInt(todaysDate)) {
+                    File file = new File(files[i].getAbsolutePath());
+                    file.delete();
+                }
+            }
+            files = dir.listFiles();
+            for (int i = 0; i < files.length; i++){
+                Log.d("Hell",DateFormat.getDateInstance().format(new Date(files[i].lastModified())).substring(0,2));
+            }
+        } catch (Exception e){
+          e.printStackTrace();
+        }
     }
 
     // Below 2 methods study them carefully!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!

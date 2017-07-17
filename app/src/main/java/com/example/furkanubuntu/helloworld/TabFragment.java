@@ -71,7 +71,7 @@ public class TabFragment extends Fragment {
     Random randomGen = new Random();
     int randomNo = randomGen.nextInt(11) + 25;
     String start = "" + randomNo;
-    String apiKey = "AIzaSyAwL2u9ByNL9coBouyJBjtx3UXmb_mtC50"; // "AIzaSyCj4Ok-oVrrVJassta4kX1dugbtGZTxD9A"; // "AIzaSyCFrT2Vp7pqSBbTecdlzO_bpNkj52iZ04Y"; // //  // ////
+    String apiKey = "AIzaSyBianBdkjLEijeQL3T0RTMgTDd9ydL8J7Y"; //"AIzaSyAwL2u9ByNL9coBouyJBjtx3UXmb_mtC50"; // "AIzaSyCj4Ok-oVrrVJassta4kX1dugbtGZTxD9A"; // "AIzaSyCFrT2Vp7pqSBbTecdlzO_bpNkj52iZ04Y";
     String cx = "000741119430587044101:2fdfbkejafg";
     String fileType = "jpg";
     String searchType = "image";
@@ -113,29 +113,32 @@ public class TabFragment extends Fragment {
         homeTabSelectionItems = new ArrayList<>();
 
         tempWishlistItems = helperInstance.readWishlist(main.userID);
-        HashMap<String, Integer> hmap = new HashMap<>();
-        for(int i = 0; i < tempWishlistItems.size(); i++){
-            if(hmap.get(tempWishlistItems.get(i).department) == null)
-                hmap.put(tempWishlistItems.get(i).department, 1);
-            else
-                hmap.put(tempWishlistItems.get(i).department,hmap.get(tempWishlistItems.get(i).department) + 1);
-        }
-        int max = 0;
-        Set set = hmap.entrySet();
-        Iterator iterator = set.iterator();
-        while(iterator.hasNext()) {
-            Map.Entry entry = (Map.Entry)iterator.next();
-            if((int) entry.getValue() > max){
-                max = (int) entry.getValue();
-                wishlistMaxDepartment = (String) entry.getKey();
+        if(tempWishlistItems.size() > 0)
+        {
+            HashMap<String, Integer> hmap = new HashMap<>();
+            for (int i = 0; i < tempWishlistItems.size(); i++) {
+                if (hmap.get(tempWishlistItems.get(i).department) == null)
+                    hmap.put(tempWishlistItems.get(i).department, 1);
+                else
+                    hmap.put(tempWishlistItems.get(i).department, hmap.get(tempWishlistItems.get(i).department) + 1);
             }
-        }
+            int max = 0;
+            Set set = hmap.entrySet();
+            Iterator iterator = set.iterator();
+            while (iterator.hasNext()) {
+                Map.Entry entry = (Map.Entry) iterator.next();
+                if ((int) entry.getValue() > max) {
+                    max = (int) entry.getValue();
+                    wishlistMaxDepartment = (String) entry.getKey();
+                }
+            }
 
-        searchCriteria = wishlistMaxDepartment;
-        combinedUrl = "https://www.googleapis.com/customsearch/v1?key=" + apiKey + "&cx=" + cx + "&q=" + searchCriteria
-                + "&searchType=" + searchType + "&start=" + start +"&fileType=" + fileType + "&alt=json";
-        HomeTabASyncTask aSyncTask = new HomeTabASyncTask(combinedUrl);
-        aSyncTask.execute();
+            searchCriteria = wishlistMaxDepartment;
+            combinedUrl = "https://www.googleapis.com/customsearch/v1?key=" + apiKey + "&cx=" + cx + "&q=" + searchCriteria
+                    + "&searchType=" + searchType + "&start=" + start + "&fileType=" + fileType + "&alt=json";
+            HomeTabASyncTask aSyncTask = new HomeTabASyncTask(combinedUrl);
+            aSyncTask.execute();
+        }
 
         homeTabAdapter = new HomeTabAdapter(getActivity(), homeTabSelectionItems);
         wishlistTabAdapter = new WishlistAdapter(getActivity(),wishlistTabSelectionItems);
@@ -233,6 +236,7 @@ public class TabFragment extends Fragment {
                         }
                         else if(lastInScreen == totalItemCount && scrollCount == searchList.size()){
                             if (searchASyncTask == null || searchASyncTask.getStatus() != AsyncTask.Status.RUNNING) {
+                                retrieveType = "clicks";
                                 searchCriteria = clicksMaxDepartment;
                                 combinedUrl = "https://www.googleapis.com/customsearch/v1?key=" + apiKey + "&cx=" + cx + "&q=" + searchCriteria
                                         + "&searchType=" + searchType + "&fileType=" + fileType + "&alt=json";
@@ -396,10 +400,10 @@ public class TabFragment extends Fragment {
 
                     for (int i = 0; i < 10; i++) {
                         Log.d("MYTAG", jsonArray.getJSONObject(i).getString("link"));
-                        if(retrieveType == "wishlist")
+                        if(retrieveType.equals("wishlist"))
                             homeTabSelectionItems.add(new JsonItemOnSale("%35", "450$", jsonArray.getJSONObject(i).getString("title"),
                                     jsonArray.getJSONObject(i).getString("link"), wishlistMaxDepartment));
-                        else if (retrieveType == "searches")
+                        else if (retrieveType.equals("searches"))
                             homeTabSelectionItems.add(new JsonItemOnSale("%35", "450$", jsonArray.getJSONObject(i).getString("title"),
                                     jsonArray.getJSONObject(i).getString("link"), searchesMaxDepartment));
                         else
