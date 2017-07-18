@@ -31,6 +31,10 @@
             android:noHistory="true">
         </activity>
 
+        <activity android:name=".CartActivity"
+            android:parentActivityName=".MainActivity">
+        </activity>
+
 
     </application>
 

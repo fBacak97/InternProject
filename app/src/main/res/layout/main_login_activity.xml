@@ -33,9 +33,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:ems="10"
-        android:inputType="textPassword"
         android:layout_marginBottom="34dp"
         android:hint="Username"
+        android:inputType="textVisiblePassword"
         android:layout_above="@+id/passwordText"
         android:layout_alignLeft="@+id/passwordText"
         android:layout_alignStart="@+id/passwordText" />

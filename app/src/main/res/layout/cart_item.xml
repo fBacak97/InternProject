@@ -22,7 +22,7 @@
             >
 
             <ImageView
-                android:id="@+id/wishlistPic"
+                android:id="@+id/cartPic"
                 android:layout_width="50dp"
                 android:layout_height="match_parent"
                 android:scaleType="centerCrop"
@@ -31,28 +31,47 @@
                 />
 
             <TextView
-                android:id="@+id/wishlistItemName"
+                android:id="@+id/cartItemName"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
+                android:text="TextView"
                 android:textSize="22sp"
-                android:textColor="#388E3C"
+                android:textColor="#121212"
                 android:gravity="center_vertical|start"
-                android:layout_marginStart="55dp"
-                android:layout_marginLeft="55dp"
                 android:clickable="false"
-                android:layout_marginEnd="70dp"
-                android:layout_marginRight="70dp" />
+                android:layout_toStartOf="@+id/cartPrice"
+                android:layout_toLeftOf="@+id/cartPrice"
+                android:layout_toRightOf="@+id/cartPic"
+                android:layout_toEndOf="@+id/cartPic"
+                android:layout_marginRight="10dp"
+                android:layout_marginEnd="10dp"/>
+
+            <TextView
+                android:id="@+id/cartPrice"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:text="TextView"
+                android:textSize="16sp"
+                android:textColor="#388E3C"
+                android:gravity="center_vertical"
+                android:layout_alignBottom="@+id/cartItemName"
+                android:layout_toLeftOf="@+id/removeCartButton"
+                android:layout_toStartOf="@+id/removeCartButton"
+                android:layout_alignParentTop="true"
+                android:layout_marginRight="10sp"
+                android:layout_marginEnd="10sp"/>
 
             <Button
-                android:id="@+id/removeFavButton"
+                android:id="@+id/removeCartButton"
                 android:layout_width="50dp"
                 android:layout_height="wrap_content"
+                android:drawableTop="@drawable/remove24"
+                style="@style/AppTheme.Button"
+                android:layout_alignParentTop="true"
                 android:layout_alignParentRight="true"
                 android:layout_alignParentEnd="true"
-                android:layout_marginEnd="15dp"
-                android:layout_marginRight="15dp"
-                android:drawableTop="@drawable/remove24"
-                style="@style/AppTheme.Button"/>
+                android:layout_marginRight="7dp"
+                android:layout_marginEnd="7dp" />
 
         </RelativeLayout>
 

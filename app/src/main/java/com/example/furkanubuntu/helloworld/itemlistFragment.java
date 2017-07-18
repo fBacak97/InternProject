@@ -49,11 +49,6 @@ import java.util.ArrayList;
 public class itemlistFragment extends Fragment {
     OnFavoritesAdded mCallback;
 
-    // Container Activity must implement this interface
-    public interface OnFavoritesAdded {
-        void onFavButtonPressed(String description, String link , String department);
-    }
-
     JsonAdapter adapter;
     ArrayList<JsonItemOnSale> arrayOfGoods;
     ArrayList<JsonItemOnSale> arrayOfGoods2;
@@ -62,7 +57,7 @@ public class itemlistFragment extends Fragment {
     FragmentManager fragmentManager;
     public static final String choiceString = "ARG_PAGE";
     //String imageSize = "Lets see i think i will need this later"; //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    String apiKey = "AIzaSyBianBdkjLEijeQL3T0RTMgTDd9ydL8J7Y"; //"AIzaSyAwL2u9ByNL9coBouyJBjtx3UXmb_mtC50"; // "AIzaSyCj4Ok-oVrrVJassta4kX1dugbtGZTxD9A"; //"AIzaSyCFrT2Vp7pqSBbTecdlzO_bpNkj52iZ04Y";
+    String apiKey = "AIzaSyCFrT2Vp7pqSBbTecdlzO_bpNkj52iZ04Y"; //"AIzaSyCj4Ok-oVrrVJassta4kX1dugbtGZTxD9A"; //"AIzaSyBianBdkjLEijeQL3T0RTMgTDd9ydL8J7Y"; //"AIzaSyAwL2u9ByNL9coBouyJBjtx3UXmb_mtC50"; //
     String cx = "000741119430587044101:2fdfbkejafg";
     String fileType = "jpg";
     String searchType = "image";
@@ -232,7 +227,15 @@ public class itemlistFragment extends Fragment {
 
         listView = (ListView) view.findViewById(R.id.item_listview);
         listView.setAdapter(adapter);
-        listView.setOnItemClickListener(new ItemClickListener());
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                MainActivity main = (MainActivity) getActivity();
+                DbHelper helperInstance = main.getInstance();
+                helperInstance.addClickCount(departmentName,main.userID);
+                startProductActivity(position);
+            }
+        });
         listView.setOnScrollListener(new AbsListView.OnScrollListener() {
 
             @Override
@@ -413,16 +416,6 @@ public class itemlistFragment extends Fragment {
         return false;
     }
 
-    private class ItemClickListener implements ListView.OnItemClickListener {
-        @Override
-        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-            MainActivity main = (MainActivity) getActivity();
-            DbHelper helperInstance = main.getInstance();
-            helperInstance.addClickCount(departmentName,main.userID);
-            startProductActivity(position);
-        }
-    }
-
     class JsonAdapter extends ArrayAdapter<JsonItemOnSale> {
         JsonAdapter(Context context, ArrayList<JsonItemOnSale> goods){
             super(context,0,goods);
@@ -444,6 +437,7 @@ public class itemlistFragment extends Fragment {
             TextView description = (TextView) convertView.findViewById(R.id.infoText);
             ImageView productPic = (ImageView) convertView.findViewById(R.id.productPic);
             Button addFavButton = (Button) convertView.findViewById(R.id.favButton);
+            Button addCartButton = (Button) convertView.findViewById(R.id.buyButton);
 
             addFavButton.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -455,11 +449,19 @@ public class itemlistFragment extends Fragment {
                 }
             });
 
+            addCartButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    MainActivity main = (MainActivity) getActivity();
+                    DbHelper helperInstance = main.getInstance();
+                    helperInstance.addCart(anItem.jsonLink, anItem.description, anItem.department,main.userID);
+                }
+            });
+
             discountAmount.setText(anItem.discount);
             price.setText(anItem.price);
             description.setText(anItem.description);
             Picasso.with(convertView.getContext()).load(anItem.jsonLink).into(productPic);
-            //productPic.setAdapter(new imageScrollAdapter(anItem.jsonLink,getContext()));
 
             return convertView;
         }

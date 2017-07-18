@@ -1,10 +1,12 @@
 package com.example.furkanubuntu.helloworld;
 
+import java.io.Serializable;
+
 /**
  * Created by furkanubuntu on 6/30/17.
  */
 
-class JsonItemOnSale {
+class JsonItemOnSale implements Serializable {
     String discount;
     String price;
     String description;

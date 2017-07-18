@@ -17,20 +17,20 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.SearchView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.io.File;
+import java.io.Serializable;
 import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
 
-public class MainActivity extends AppCompatActivity implements itemlistFragment.OnFavoritesAdded {
+public class MainActivity extends AppCompatActivity implements OnFavoritesAdded{
     ListView drawerListView;
     DrawerLayout drawerLayout;
     Fragment fragment;
@@ -54,6 +54,8 @@ public class MainActivity extends AppCompatActivity implements itemlistFragment.
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        clearCache24Hours(this);
+
         Intent intent = getIntent();
         userID = intent.getIntExtra(Intent.EXTRA_TITLE,0);
 
@@ -66,6 +68,18 @@ public class MainActivity extends AppCompatActivity implements itemlistFragment.
         searchView = (SearchView) findViewById(R.id.searchBar);
         searchView.setVisibility(View.INVISIBLE);
         mainHeader = (TextView) findViewById(R.id.mainHeader);
+        Button cartButton = (Button) findViewById(R.id.cartButton);
+        cartButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent1 = new Intent(MainActivity.this,CartActivity.class);
+                Bundle bundle = new Bundle();
+                bundle.putSerializable("Arraylist",(Serializable)helperInstance.readCart(userID));
+                intent1.putExtra(Intent.EXTRA_INTENT,bundle);
+                intent1.putExtra(Intent.EXTRA_TEXT, userID);
+                startActivity(intent1);
+            }
+        });
 
         tabLayout = (TabLayout) findViewById(R.id.sliding_tabs);
         tabLayout.setupWithViewPager(viewPager);
@@ -162,8 +176,6 @@ public class MainActivity extends AppCompatActivity implements itemlistFragment.
         fragmentTransaction.replace(R.id.productFragment,fragment).hide(fragment);
         fragmentTransaction.commit();
 
-        traverseCache(this);
-
     }
 
     @Override
@@ -181,7 +193,7 @@ public class MainActivity extends AppCompatActivity implements itemlistFragment.
     }
 
 
-    public void traverseCache(Context context){
+    public void clearCacheMidnight(Context context){
         try {
             File dir = new File(context.getCacheDir().getAbsolutePath() + "/picasso-cache");
             File[] files = dir.listFiles();
@@ -193,12 +205,24 @@ public class MainActivity extends AppCompatActivity implements itemlistFragment.
                     file.delete();
                 }
             }
-            files = dir.listFiles();
-            for (int i = 0; i < files.length; i++){
-                Log.d("Hell",DateFormat.getDateInstance().format(new Date(files[i].lastModified())).substring(0,2));
-            }
         } catch (Exception e){
           e.printStackTrace();
+        }
+    }
+
+    public void clearCache24Hours(Context context){
+        try {
+            File dir = new File(context.getCacheDir().getAbsolutePath() + "/picasso-cache");
+            File[] files = dir.listFiles();
+            long currentTimeInMilliseconds = System.currentTimeMillis();
+            for (int i = 0; i < files.length; i++) {
+                long lastModifiedTime = files[i].lastModified();
+                if (currentTimeInMilliseconds - lastModifiedTime > 86400000) {
+                    files[i].delete();
+                }
+            }
+        } catch (Exception e){
+            e.printStackTrace();
         }
     }
 
@@ -292,10 +316,12 @@ public class MainActivity extends AppCompatActivity implements itemlistFragment.
         getSupportFragmentManager().executePendingTransactions();
         TabFragment tabFragment = (TabFragment) getSupportFragmentManager().findFragmentByTag("android:switcher:"+R.id.viewpager+":1");
         if(arrayContainChecker(tabFragment.wishlistTabSelectionItems, link)) {
-            tabFragment.wishlistTabSelectionItems.add(new JsonItemOnSale("Random", "Random", description, link, department));
+            tabFragment.wishlistTabSelectionItems.add(new JsonItemOnSale("450$", "450$", description, link, department));
             tabFragment.wishlistTabAdapter.notifyDataSetChanged();
         }
     }
+
+
 
     private class DrawerItemClickListener implements ListView.OnItemClickListener {
         @Override

@@ -93,6 +93,7 @@ public class DbHelper extends SQLiteOpenHelper {
             cursor.moveToNext();
         }
         cursor.close();
+        db.close();
         return jsonArray;
     }
 
@@ -223,6 +224,48 @@ public class DbHelper extends SQLiteOpenHelper {
         ContentValues values = new ContentValues();
         values.put(department,String.valueOf(oldValue + 1));
         db.update("clickcounts",values,"key = ?",new String[] {String.valueOf(userID)});
+        db.close();
+    }
+
+    public void addCart(String link, String description, String department, int userID) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        if (db.query("cart",new String[] {"link"}, "link = ? AND key = ?",new String[] {link, Integer.toString(userID)},null,null,null,null).getCount() == 0) {
+            ContentValues values = new ContentValues();
+            values.put("link", link);
+            values.put("description", description);
+            values.put("department", department);
+            values.put("key", userID);
+            db.insert("cart", null, values);
+            Toast toast = Toast.makeText(context,"The item is added to your cart.", Toast.LENGTH_SHORT);
+            toast.show();
+        }
+        else{
+            Toast toast = Toast.makeText(context,"The item is already in your cart.", Toast.LENGTH_SHORT);
+            toast.show();
+        }
+        db.close();
+    }
+
+    public ArrayList<JsonItemOnSale> readCart(int userID) {
+        ArrayList<JsonItemOnSale> jsonArray = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.query("cart", new String[] {"description", "link", "department"}, "key" + " = ?", new String[] {Integer.toString(userID)}, null, null, null, null);
+        if (cursor != null) {
+            cursor.moveToFirst();
+            Log.d("null", String.valueOf(cursor.getCount()));
+        }
+        for(int i = 0; i < cursor.getCount(); i++){
+            jsonArray.add(new JsonItemOnSale("450$", "450$", cursor.getString(0), cursor.getString(1), cursor.getString(2)));
+            cursor.moveToNext();
+        }
+        cursor.close();
+        db.close();
+        return jsonArray;
+    }
+
+    public void removeCart(String link, int userID){
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.delete("cart", "link = ? AND key = ?", new String[] {link, Integer.toString(userID)});
         db.close();
     }
 }

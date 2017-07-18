@@ -56,8 +56,8 @@ public class TabFragment extends Fragment {
     DrawerAdapter userTabAdapter;
     ListView wishlistTabListView;
     ListView userTabListView;
-    public WishlistAdapter wishlistTabAdapter;
     ListView homeTabListView;
+    public WishlistAdapter wishlistTabAdapter;
     HomeTabAdapter homeTabAdapter;
     ProgressBar progressBar = null;
     View view;
@@ -71,7 +71,7 @@ public class TabFragment extends Fragment {
     Random randomGen = new Random();
     int randomNo = randomGen.nextInt(11) + 25;
     String start = "" + randomNo;
-    String apiKey = "AIzaSyBianBdkjLEijeQL3T0RTMgTDd9ydL8J7Y"; //"AIzaSyAwL2u9ByNL9coBouyJBjtx3UXmb_mtC50"; // "AIzaSyCj4Ok-oVrrVJassta4kX1dugbtGZTxD9A"; // "AIzaSyCFrT2Vp7pqSBbTecdlzO_bpNkj52iZ04Y";
+    String apiKey = "AIzaSyCFrT2Vp7pqSBbTecdlzO_bpNkj52iZ04Y"; //"AIzaSyCj4Ok-oVrrVJassta4kX1dugbtGZTxD9A"; //"AIzaSyBianBdkjLEijeQL3T0RTMgTDd9ydL8J7Y"; //"AIzaSyAwL2u9ByNL9coBouyJBjtx3UXmb_mtC50";
     String cx = "000741119430587044101:2fdfbkejafg";
     String fileType = "jpg";
     String searchType = "image";
@@ -79,12 +79,6 @@ public class TabFragment extends Fragment {
     private int mPage;
 
     OnFavoritesAdded mCallback;
-
-    // Container Activity must implement this interface
-    public interface OnFavoritesAdded {
-        void onFavButtonPressed(String description, String link , String department);
-    }
-
 
     public static TabFragment newInstance(int page) {
         Bundle args = new Bundle();
@@ -145,6 +139,13 @@ public class TabFragment extends Fragment {
         userTabAdapter = new DrawerAdapter(getActivity(), userTabSelectionItems);
     }
 
+    public void selectHomeTabItem(int position){
+        MainActivity main = (MainActivity) getActivity();
+        DbHelper helperInstance = main.getInstance();
+        helperInstance.addClickCount(homeTabSelectionItems.get(position).department,main.userID);
+        startProductActivity(position);
+    }
+
     public void selectUserTabItem(int position){
         switch(position){
             case 0:
@@ -167,7 +168,17 @@ public class TabFragment extends Fragment {
         getActivity().startActivity(intent);
     }
 
-    private class UserTabItemClickListener implements ListView.OnItemClickListener {
+    protected void startProductActivity(int position){
+        Intent intent = new Intent(getActivity(),ProductActivity.class);
+        intent.putExtra(Intent.EXTRA_TEXT,homeTabSelectionItems.get(position).jsonLink);
+        intent.putExtra(Intent.EXTRA_TITLE,searchCriteria);
+        intent.putExtra(Intent.EXTRA_SUBJECT,homeTabSelectionItems.get(position).description);
+        MainActivity main = (MainActivity) getActivity();
+        intent.putExtra(Intent.EXTRA_TEMPLATE, main.userID);
+        getActivity().startActivity(intent);
+    }
+
+    private class TabFragmentsItemClickListener implements ListView.OnItemClickListener {
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
             if(mPage == 2) {
@@ -176,9 +187,9 @@ public class TabFragment extends Fragment {
             else if (mPage == 1){
                 selectWishlistTabItem(position);
             }
-            else
+            else if (mPage == 0)
             {
-                //abc
+                selectHomeTabItem(position);
             }
         }
     }
@@ -190,13 +201,13 @@ public class TabFragment extends Fragment {
             view = inflater.inflate(R.layout.account_tab_fragment, container, false);
             userTabListView = (ListView) view.findViewById(R.id.accountTabSelections);
             userTabListView.setAdapter(userTabAdapter);
-            userTabListView.setOnItemClickListener(new UserTabItemClickListener());
+            userTabListView.setOnItemClickListener(new TabFragmentsItemClickListener());
         }
         else if (mPage == 1){
             view = inflater.inflate(R.layout.wishlist_tab_fragment,container,false);
             wishlistTabListView = (ListView) view.findViewById(R.id.wishlistTabSelections);
             wishlistTabListView.setAdapter(wishlistTabAdapter);
-            wishlistTabListView.setOnItemClickListener(new UserTabItemClickListener());
+            wishlistTabListView.setOnItemClickListener(new TabFragmentsItemClickListener());
             wishlistTabAdapter.notifyDataSetChanged();
         }
         else{
@@ -207,6 +218,7 @@ public class TabFragment extends Fragment {
             progressBar.setVisibility(View.GONE);
             progressBar.getIndeterminateDrawable().setColorFilter(ContextCompat.getColor(view.getContext(), R.color.black), PorterDuff.Mode.SRC_IN );
             homeTabListView = (ListView) view.findViewById(R.id.recommendedItemList);
+            homeTabListView.setOnItemClickListener(new TabFragmentsItemClickListener());
             combinedUrl = "https://www.googleapis.com/customsearch/v1?key=" + apiKey + "&cx=" + cx + "&q=" + searchCriteria
                     + "&searchType=" + searchType + "&fileType=" + fileType + "&alt=json";
             retrieveType = "searches";
@@ -318,15 +330,16 @@ public class TabFragment extends Fragment {
 
             final JsonItemOnSale anItem = getItem(position);
 
-            if(convertView == null){
+            //if(convertView == null){
                 convertView = LayoutInflater.from(getActivity()).inflate(R.layout.hwlayout,parent,false);
-            }
+            //}
 
             TextView discountAmount = (TextView) convertView.findViewById(R.id.discountText);
             TextView price = (TextView) convertView.findViewById(R.id.priceText);
             TextView description = (TextView) convertView.findViewById(R.id.infoText);
             ImageView productPic = (ImageView) convertView.findViewById(R.id.productPic);
             Button addFavButton = (Button) convertView.findViewById(R.id.favButton);
+            Button addCartButton = (Button) convertView.findViewById(R.id.buyButton);
 
             addFavButton.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -334,7 +347,20 @@ public class TabFragment extends Fragment {
                     MainActivity main = (MainActivity) getActivity();
                     DbHelper helperInstance = main.getInstance();
                     helperInstance.addWishlist(anItem.jsonLink, anItem.description, anItem.department,main.userID);
-                    mCallback.onFavButtonPressed(anItem.description, anItem.jsonLink, anItem.department);
+                    try{
+                        mCallback.onFavButtonPressed(anItem.description, anItem.jsonLink, anItem.department);
+                    } catch (Exception e){
+                        e.printStackTrace();
+                    }
+                }
+            });
+
+            addCartButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    MainActivity main = (MainActivity) getActivity();
+                    DbHelper helperInstance = main.getInstance();
+                    helperInstance.addCart(anItem.jsonLink,anItem.description,anItem.department,main.userID);
                 }
             });
 
