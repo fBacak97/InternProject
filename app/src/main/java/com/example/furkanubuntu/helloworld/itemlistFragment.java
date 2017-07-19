@@ -49,6 +49,7 @@ import java.util.ArrayList;
 public class itemlistFragment extends Fragment {
     OnFavoritesAdded mCallback;
 
+    MainActivity main;
     JsonAdapter adapter;
     ArrayList<JsonItemOnSale> arrayOfGoods;
     ArrayList<JsonItemOnSale> arrayOfGoods2;
@@ -57,7 +58,7 @@ public class itemlistFragment extends Fragment {
     FragmentManager fragmentManager;
     public static final String choiceString = "ARG_PAGE";
     //String imageSize = "Lets see i think i will need this later"; //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    String apiKey = "AIzaSyCFrT2Vp7pqSBbTecdlzO_bpNkj52iZ04Y"; //"AIzaSyCj4Ok-oVrrVJassta4kX1dugbtGZTxD9A"; //"AIzaSyBianBdkjLEijeQL3T0RTMgTDd9ydL8J7Y"; //"AIzaSyAwL2u9ByNL9coBouyJBjtx3UXmb_mtC50"; //
+    String apiKey = "AIzaSyCj4Ok-oVrrVJassta4kX1dugbtGZTxD9A"; //"AIzaSyBianBdkjLEijeQL3T0RTMgTDd9ydL8J7Y"; //"AIzaSyAwL2u9ByNL9coBouyJBjtx3UXmb_mtC50";  //"AIzaSyCFrT2Vp7pqSBbTecdlzO_bpNkj52iZ04Y";
     String cx = "000741119430587044101:2fdfbkejafg";
     String fileType = "jpg";
     String searchType = "image";
@@ -315,6 +316,17 @@ public class itemlistFragment extends Fragment {
         return view;
     }
 
+    protected void startProductActivity(int position){
+        Intent intent = new Intent(getActivity(),ProductActivity.class);
+        intent.putExtra(Intent.EXTRA_TEXT,arrayOfGoods.get(position).jsonLink);
+        intent.putExtra(Intent.EXTRA_TITLE,searchCriteria);
+        intent.putExtra(Intent.EXTRA_SUBJECT,arrayOfGoods.get(position).description);
+        intent.putExtra("Department",arrayOfGoods.get(position).department);
+        main = (MainActivity) getActivity();
+        intent.putExtra(Intent.EXTRA_TEMPLATE, main.userID);
+        getActivity().startActivity(intent);
+    }
+
     private class myASyncTask extends AsyncTask {
         String urlString;
         int exceptionNo;
@@ -387,16 +399,6 @@ public class itemlistFragment extends Fragment {
             adapter.notifyDataSetChanged();
             progressBar.setVisibility(View.GONE);
         }
-    }
-
-    protected void startProductActivity(int position){
-        Intent intent = new Intent(getActivity(),ProductActivity.class);
-        intent.putExtra(Intent.EXTRA_TEXT,arrayOfGoods.get(position).jsonLink);
-        intent.putExtra(Intent.EXTRA_TITLE,searchCriteria);
-        intent.putExtra(Intent.EXTRA_SUBJECT,arrayOfGoods.get(position).description);
-        MainActivity main = (MainActivity) getActivity();
-        intent.putExtra(Intent.EXTRA_TEMPLATE, main.userID);
-        getActivity().startActivity(intent);
     }
 
     protected boolean wordChecker(String word) {

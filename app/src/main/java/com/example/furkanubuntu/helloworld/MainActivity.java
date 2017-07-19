@@ -6,6 +6,7 @@ import android.app.FragmentTransaction;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.GradientDrawable;
+import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
@@ -15,13 +16,14 @@ import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.SearchView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.File;
 import java.io.Serializable;
@@ -48,6 +50,9 @@ public class MainActivity extends AppCompatActivity implements OnFavoritesAdded{
     TabLayout tabLayout;
     android.support.v4.view.PagerAdapter pagerAdapter;
     TextView mainHeader;
+    float dX;
+    float dY;
+    int lastAction;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,18 +73,45 @@ public class MainActivity extends AppCompatActivity implements OnFavoritesAdded{
         searchView = (SearchView) findViewById(R.id.searchBar);
         searchView.setVisibility(View.INVISIBLE);
         mainHeader = (TextView) findViewById(R.id.mainHeader);
-        Button cartButton = (Button) findViewById(R.id.cartButton);
-        cartButton.setOnClickListener(new View.OnClickListener() {
+        FloatingActionButton cartButton = (FloatingActionButton) findViewById(R.id.cartButton);
+        cartButton.setImageResource(R.drawable.cart);
+        cartButton.setOnTouchListener(new View.OnTouchListener() {
             @Override
-            public void onClick(View view) {
-                Intent intent1 = new Intent(MainActivity.this,CartActivity.class);
-                Bundle bundle = new Bundle();
-                bundle.putSerializable("Arraylist",(Serializable)helperInstance.readCart(userID));
-                intent1.putExtra(Intent.EXTRA_INTENT,bundle);
-                intent1.putExtra(Intent.EXTRA_TEXT, userID);
-                startActivity(intent1);
+            public boolean onTouch(View view, MotionEvent event) {
+                switch (event.getActionMasked()) {
+                    case MotionEvent.ACTION_DOWN:
+                        dX = view.getX() - event.getRawX();
+                        dY = view.getY() - event.getRawY();
+                        lastAction = MotionEvent.ACTION_DOWN;
+                        break;
+
+                    case MotionEvent.ACTION_MOVE:
+                        view.setY(event.getRawY() + dY);
+                        view.setX(event.getRawX() + dX);
+                        lastAction = MotionEvent.ACTION_MOVE;
+                        break;
+
+                    case MotionEvent.ACTION_UP:
+                        if (lastAction == MotionEvent.ACTION_DOWN) {
+                            Intent intent1 = new Intent(MainActivity.this, CartActivity.class);
+                            Bundle bundle = new Bundle();
+                            bundle.putSerializable("Arraylist", (Serializable) helperInstance.readCart(userID));
+                            intent1.putExtra(Intent.EXTRA_INTENT, bundle);
+                            intent1.putExtra(Intent.EXTRA_TEXT, userID);
+                            startActivity(intent1);
+                            Toast.makeText(getBaseContext(), "Clicked!", Toast.LENGTH_SHORT).show();
+                        }
+                        break;
+
+                    default:
+                        return false;
+                }
+                return true;
             }
         });
+
+
+
 
         tabLayout = (TabLayout) findViewById(R.id.sliding_tabs);
         tabLayout.setupWithViewPager(viewPager);
@@ -180,9 +212,18 @@ public class MainActivity extends AppCompatActivity implements OnFavoritesAdded{
 
     @Override
     protected void onResume() {
-        if(getIntent().getIntExtra("buttonNo",0) > 0){
-            int buttonNo = (getIntent().getIntExtra("buttonNo",0));
-            Log.d("mytag","" + buttonNo);
+        getSupportFragmentManager().executePendingTransactions();
+        TabFragment tabFragment = (TabFragment) getSupportFragmentManager().findFragmentByTag("android:switcher:"+R.id.viewpager+":1");
+        if(tabFragment != null) {
+            if (tabFragment.wishlistTabSelectionItems.size() != helperInstance.readWishlist(userID).size()) {
+                Log.d("ONrESUME", "IN ON RESUME");
+                tabFragment.wishlistTabSelectionItems = helperInstance.readWishlist(userID);
+                tabFragment.wishlistTabAdapter.notifyDataSetChanged();
+            }
+        }
+        if (getIntent().getIntExtra("buttonNo", 0) > 0) {
+            int buttonNo = (getIntent().getIntExtra("buttonNo", 0));
+            Log.d("mytag", "" + buttonNo);
             fragment = itemlistFragment.newInstance(buttonNo);
             FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
             fragmentTransaction.replace(R.id.productFragment, fragment).show(fragment);
@@ -223,6 +264,7 @@ public class MainActivity extends AppCompatActivity implements OnFavoritesAdded{
             }
         } catch (Exception e){
             e.printStackTrace();
+
         }
     }
 

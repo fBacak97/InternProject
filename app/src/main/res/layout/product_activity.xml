@@ -65,7 +65,7 @@
             android:background="#CDDC39" />
 
         <Button
-            android:id="@+id/favButton"
+            android:id="@+id/productFavButton"
             android:layout_width="170dp"
             android:layout_height="35dp"
             android:background="#8BC34A"
@@ -75,7 +75,7 @@
             android:layout_alignBottom="@+id/buttonHolder" />
 
         <Button
-            android:id="@+id/buyButton"
+            android:id="@+id/productBuyButton"
             android:layout_width="170dp"
             android:layout_height="35dp"
             android:background="#8BC34A"
@@ -91,7 +91,7 @@
             android:layout_height="50dp"
             android:text="Information"
             android:textSize="20sp"
-            android:layout_above="@+id/buyButton"
+            android:layout_above="@+id/productBuyButton"
             android:gravity="center_vertical|center"
             android:layout_alignParentLeft="true"
             android:layout_alignParentStart="true"

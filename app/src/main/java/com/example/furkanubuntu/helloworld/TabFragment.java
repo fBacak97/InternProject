@@ -1,5 +1,6 @@
 package com.example.furkanubuntu.helloworld;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -22,6 +23,7 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.squareup.picasso.Picasso;
 
@@ -32,6 +34,7 @@ import org.json.JSONObject;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.Serializable;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -71,12 +74,14 @@ public class TabFragment extends Fragment {
     Random randomGen = new Random();
     int randomNo = randomGen.nextInt(11) + 25;
     String start = "" + randomNo;
-    String apiKey = "AIzaSyCFrT2Vp7pqSBbTecdlzO_bpNkj52iZ04Y"; //"AIzaSyCj4Ok-oVrrVJassta4kX1dugbtGZTxD9A"; //"AIzaSyBianBdkjLEijeQL3T0RTMgTDd9ydL8J7Y"; //"AIzaSyAwL2u9ByNL9coBouyJBjtx3UXmb_mtC50";
+    String apiKey = "AIzaSyCj4Ok-oVrrVJassta4kX1dugbtGZTxD9A"; //"AIzaSyBianBdkjLEijeQL3T0RTMgTDd9ydL8J7Y"; //"AIzaSyAwL2u9ByNL9coBouyJBjtx3UXmb_mtC50"; //"AIzaSyCFrT2Vp7pqSBbTecdlzO_bpNkj52iZ04Y"; // ////
     String cx = "000741119430587044101:2fdfbkejafg";
     String fileType = "jpg";
     String searchType = "image";
     String searchCriteria;
     private int mPage;
+    DbHelper helperInstance;
+    MainActivity main;
 
     OnFavoritesAdded mCallback;
 
@@ -89,19 +94,28 @@ public class TabFragment extends Fragment {
     }
 
     @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        try {
+            mCallback = (OnFavoritesAdded) activity;
+        } catch (ClassCastException e) {
+            throw new ClassCastException(activity.toString()
+                    + " must implement OnFavButtonClicked");
+        }
+    }
+
+    @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mPage = getArguments().getInt(ARG_PAGE);
 
         userTabSelectionItems = new ArrayList<>();
         userTabSelectionItems.add(new DrawerItem(" My Profile", R.drawable.account));
-        userTabSelectionItems.add(new DrawerItem(" Notifications", R.drawable.notifications));
         userTabSelectionItems.add(new DrawerItem(" My Orders", R.drawable.cart));
-        userTabSelectionItems.add(new DrawerItem(" Wishlist", R.drawable.favorite));
         userTabSelectionItems.add(new DrawerItem(" Location", R.drawable.userlocation));
 
-        MainActivity main = (MainActivity) getActivity();
-        DbHelper helperInstance = main.getInstance();
+        main = (MainActivity) getActivity();
+        helperInstance = main.getInstance();
         wishlistTabSelectionItems = helperInstance.readWishlist(main.userID);
 
         homeTabSelectionItems = new ArrayList<>();
@@ -140,41 +154,45 @@ public class TabFragment extends Fragment {
     }
 
     public void selectHomeTabItem(int position){
-        MainActivity main = (MainActivity) getActivity();
-        DbHelper helperInstance = main.getInstance();
         helperInstance.addClickCount(homeTabSelectionItems.get(position).department,main.userID);
-        startProductActivity(position);
+        startProductActivity(position, "Home");
     }
 
     public void selectUserTabItem(int position){
         switch(position){
-            case 0:
-                TextView abc = (TextView) view.findViewById(R.id.userName);
-                abc.setText("\n\naa");
-                break;
+            case 1:
+                Intent intent1 = new Intent(getActivity(), CartActivity.class);
+                Bundle bundle = new Bundle();
+                bundle.putSerializable("Arraylist", (Serializable) helperInstance.readCart(main.userID));
+                intent1.putExtra(Intent.EXTRA_INTENT, bundle);
+                intent1.putExtra(Intent.EXTRA_TEXT, main.userID);
+                startActivity(intent1);
+                Toast.makeText(getActivity(), "Clicked!", Toast.LENGTH_SHORT).show();
             default:
                 break;
         }
     }
 
-
     public void selectWishlistTabItem(int position){
-        Intent intent = new Intent(getActivity(),ProductActivity.class);
-        intent.putExtra(Intent.EXTRA_TEXT,wishlistTabSelectionItems.get(position).jsonLink);
-        intent.putExtra(Intent.EXTRA_TITLE,wishlistTabSelectionItems.get(position).department);
-        intent.putExtra(Intent.EXTRA_SUBJECT,wishlistTabSelectionItems.get(position).description);
-        MainActivity main = (MainActivity) getActivity();
-        intent.putExtra(Intent.EXTRA_TEMPLATE,main.userID);
-        getActivity().startActivity(intent);
+        startProductActivity(position, "Wishlist");
     }
 
-    protected void startProductActivity(int position){
-        Intent intent = new Intent(getActivity(),ProductActivity.class);
-        intent.putExtra(Intent.EXTRA_TEXT,homeTabSelectionItems.get(position).jsonLink);
-        intent.putExtra(Intent.EXTRA_TITLE,searchCriteria);
-        intent.putExtra(Intent.EXTRA_SUBJECT,homeTabSelectionItems.get(position).description);
-        MainActivity main = (MainActivity) getActivity();
-        intent.putExtra(Intent.EXTRA_TEMPLATE, main.userID);
+    protected void startProductActivity(int position, String flag){
+        Intent intent = new Intent(getActivity(), ProductActivity.class);
+        if(flag.equals("Home")) {
+            intent.putExtra(Intent.EXTRA_TEXT, homeTabSelectionItems.get(position).jsonLink);
+            intent.putExtra(Intent.EXTRA_TITLE, homeTabSelectionItems.get(position).department);
+            intent.putExtra(Intent.EXTRA_SUBJECT, homeTabSelectionItems.get(position).description);
+            intent.putExtra(Intent.EXTRA_TEMPLATE, main.userID);
+            intent.putExtra("Department", homeTabSelectionItems.get(position).department);
+        }
+        else if(flag.equals("Wishlist")){
+            intent.putExtra(Intent.EXTRA_TEXT, wishlistTabSelectionItems.get(position).jsonLink);
+            intent.putExtra(Intent.EXTRA_TITLE, wishlistTabSelectionItems.get(position).department);
+            intent.putExtra(Intent.EXTRA_SUBJECT, wishlistTabSelectionItems.get(position).description);
+            intent.putExtra(Intent.EXTRA_TEMPLATE, main.userID);
+            intent.putExtra("Department", wishlistTabSelectionItems.get(position).department);
+        }
         getActivity().startActivity(intent);
     }
 
@@ -211,8 +229,6 @@ public class TabFragment extends Fragment {
             wishlistTabAdapter.notifyDataSetChanged();
         }
         else{
-            MainActivity main = (MainActivity) getActivity();
-            DbHelper helperInstance = main.getInstance();
             view = inflater.inflate(R.layout.home_tab_fragment,container,false);
             progressBar = (ProgressBar) view.findViewById(R.id.progressBarTwo);
             progressBar.setVisibility(View.GONE);
@@ -330,9 +346,9 @@ public class TabFragment extends Fragment {
 
             final JsonItemOnSale anItem = getItem(position);
 
-            //if(convertView == null){
+            if(convertView == null){
                 convertView = LayoutInflater.from(getActivity()).inflate(R.layout.hwlayout,parent,false);
-            //}
+            }
 
             TextView discountAmount = (TextView) convertView.findViewById(R.id.discountText);
             TextView price = (TextView) convertView.findViewById(R.id.priceText);
@@ -359,7 +375,7 @@ public class TabFragment extends Fragment {
                 @Override
                 public void onClick(View view) {
                     MainActivity main = (MainActivity) getActivity();
-                    DbHelper helperInstance = main.getInstance();
+                    DbHelper helperInstance = main.getInstance();   userTabSelectionItems.add(new DrawerItem(" Wishlist", R.drawable.favorite));
                     helperInstance.addCart(anItem.jsonLink,anItem.description,anItem.department,main.userID);
                 }
             });

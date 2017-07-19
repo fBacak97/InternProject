@@ -15,6 +15,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -38,6 +39,7 @@ import java.util.Random;
 
 public class ProductActivity extends AppCompatActivity {
 
+
     ListView drawerListView;
     DrawerLayout productDrawerLayout;
     Toolbar toolbar;
@@ -50,7 +52,7 @@ public class ProductActivity extends AppCompatActivity {
     TextView header;
     TextView description;
     imageScrollAdapter adapter;
-    String apiKey = "AIzaSyCFrT2Vp7pqSBbTecdlzO_bpNkj52iZ04Y"; //"AIzaSyCj4Ok-oVrrVJassta4kX1dugbtGZTxD9A"; //"AIzaSyBianBdkjLEijeQL3T0RTMgTDd9ydL8J7Y"; //"AIzaSyAwL2u9ByNL9coBouyJBjtx3UXmb_mtC50";
+    String apiKey = "AIzaSyCj4Ok-oVrrVJassta4kX1dugbtGZTxD9A"; //"AIzaSyBianBdkjLEijeQL3T0RTMgTDd9ydL8J7Y";  //"AIzaSyAwL2u9ByNL9coBouyJBjtx3UXmb_mtC50"; //"AIzaSyCFrT2Vp7pqSBbTecdlzO_bpNkj52iZ04Y";
     String cx = "000741119430587044101:2fdfbkejafg";
     int randomNo;
     int userID;
@@ -62,6 +64,8 @@ public class ProductActivity extends AppCompatActivity {
     ArrayList<String> linkArray;
     ViewPager viewPager;
     TabLayout swipeDots;
+    DbHelper helperInstance;
+    Intent intent;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -79,6 +83,10 @@ public class ProductActivity extends AppCompatActivity {
         Random randomGen = new Random();
         randomNo = randomGen.nextInt(21) + 5;
         start = "" + randomNo;
+        Button addFavButton = (Button) findViewById(R.id.productFavButton);
+        Button addCartButton = (Button) findViewById(R.id.productBuyButton);
+
+        helperInstance = new DbHelper(this);
 
         drawerItemList.add(new DrawerItem(" Home",R.drawable.home));
         drawerItemList.add(new DrawerItem(" Departments",R.drawable.store));
@@ -129,7 +137,7 @@ public class ProductActivity extends AppCompatActivity {
 
         fragmentManager = getFragmentManager();
 
-        Intent intent = getIntent();
+        intent = getIntent();
         linkArray.add(intent.getStringExtra(Intent.EXTRA_TEXT));
         searchCriteria = intent.getStringExtra(Intent.EXTRA_TITLE);
         description.setText(intent.getStringExtra(Intent.EXTRA_SUBJECT));
@@ -140,6 +148,17 @@ public class ProductActivity extends AppCompatActivity {
         UniqueASyncTask aSyncTask = new UniqueASyncTask(combinedUrl);
         aSyncTask.execute();
 
+        addFavButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(wishlistContainChecker(userID)) {
+                    helperInstance.removeWishlist(linkArray.get(0),userID);
+                }
+                else{
+                    helperInstance.addWishlist(linkArray.get(0),description.getText().toString(),intent.getStringExtra("Department"),userID);
+                }
+            }
+        });
     }
 
     public void setupToolbar(){
@@ -169,6 +188,24 @@ public class ProductActivity extends AppCompatActivity {
         };
         //This is necessary to change the icon of the Drawer Toggle upon state change. Not necessary in my app atm!!.
         mDrawerToggle.syncState();
+    }
+
+    public boolean wishlistContainChecker(int userID){
+        ArrayList<JsonItemOnSale> list = helperInstance.readWishlist(userID);
+        for(int i = 0; i < list.size(); i++){
+            if(intent.getStringExtra(Intent.EXTRA_TEXT).equals(list.get(i).jsonLink))
+                return true;
+        }
+      return false;
+    }
+
+    public boolean cartContainChecker(int userID){
+        ArrayList<JsonItemOnSale> list = helperInstance.readCart(userID);
+        for(int i = 0; i < list.size(); i++){
+            if(intent.getStringExtra(Intent.EXTRA_TEXT).equals(list.get(i).jsonLink))
+                return true;
+        }
+        return false;
     }
 
     public void selectDrawerItem(int position) {
@@ -261,6 +298,7 @@ public class ProductActivity extends AppCompatActivity {
                     builder.append(line);
                 }
             } catch (IOException e) {
+
                 e.printStackTrace();
             }
             JSONObject jsonObject = null;
