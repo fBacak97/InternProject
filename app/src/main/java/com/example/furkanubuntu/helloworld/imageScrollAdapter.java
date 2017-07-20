@@ -16,10 +16,9 @@ import java.util.ArrayList;
  */
 
 class imageScrollAdapter extends PagerAdapter {
-    ArrayList<String> urlArray;
-    Context context;
-    final int PIC_COUNT = 4;
-    ImageView imageView;
+    private ArrayList<String> urlArray;
+    private Context context;
+    private final int PIC_COUNT = 4;
 
     imageScrollAdapter(ArrayList<String> urlArray, Context context){
         super();
@@ -34,9 +33,9 @@ class imageScrollAdapter extends PagerAdapter {
 
     @Override
     public Object instantiateItem(ViewGroup container, int position) {
-        imageView = new ImageView(context);
+        ImageView imageView = new ImageView(context);
         String tempUrl = urlArray.get(position);
-        Picasso.with(context).load(tempUrl).into(imageView);
+        Picasso.with(context).load(tempUrl).fit().into(imageView);
         ((ViewPager) container).addView(imageView);
         return imageView;
     }

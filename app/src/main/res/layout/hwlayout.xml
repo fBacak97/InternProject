@@ -59,7 +59,7 @@
         android:layout_width="170dp"
         android:layout_height="35dp"
         android:background="#8BC34A"
-        android:text="Add to Favorites"
+        android:text="Add to Wishlist"
         android:layout_alignLeft="@+id/infoText"
         android:layout_alignStart="@+id/infoText"
         android:layout_alignBottom="@+id/imageView2" />
@@ -69,7 +69,7 @@
         android:layout_width="170dp"
         android:layout_height="35dp"
         android:background="#8BC34A"
-        android:text="Buy"
+        android:text="Add to Cart"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
         android:layout_alignBottom="@+id/imageView2" />

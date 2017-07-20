@@ -14,7 +14,7 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -23,7 +23,6 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.SearchView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.io.File;
 import java.io.Serializable;
@@ -43,9 +42,11 @@ public class MainActivity extends AppCompatActivity implements OnFavoritesAdded{
     ArrayList<DrawerItem> drawerItemList;
     ArrayList<DrawerItem> departmentsList;
     String currentDrawerContent = "mainPage";
+    int lastClickedPosition;
     SearchView searchView;
     DbHelper helperInstance;
     ViewPager viewPager;
+    String username;
     int userID;
     TabLayout tabLayout;
     android.support.v4.view.PagerAdapter pagerAdapter;
@@ -61,12 +62,14 @@ public class MainActivity extends AppCompatActivity implements OnFavoritesAdded{
 
         clearCache24Hours(this);
 
-        Intent intent = getIntent();
-        userID = intent.getIntExtra(Intent.EXTRA_TITLE,0);
-
-        pagerAdapter = new PagerAdapter(getSupportFragmentManager(),MainActivity.this,"","","");
         helperInstance = new DbHelper(getBaseContext());
         helperInstance.getReadableDatabase();
+
+        Intent intent = getIntent();
+        userID = intent.getIntExtra(Intent.EXTRA_TITLE,0);
+        username = helperInstance.getUsername(userID);
+
+        pagerAdapter = new PagerAdapter(getSupportFragmentManager(),MainActivity.this,"","","");
         drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         viewPager = (ViewPager)  findViewById(R.id.viewpager);
         viewPager.setAdapter(pagerAdapter);
@@ -93,13 +96,12 @@ public class MainActivity extends AppCompatActivity implements OnFavoritesAdded{
 
                     case MotionEvent.ACTION_UP:
                         if (lastAction == MotionEvent.ACTION_DOWN) {
-                            Intent intent1 = new Intent(MainActivity.this, CartActivity.class);
+                            Intent intent = new Intent(MainActivity.this, CartActivity.class);
                             Bundle bundle = new Bundle();
                             bundle.putSerializable("Arraylist", (Serializable) helperInstance.readCart(userID));
-                            intent1.putExtra(Intent.EXTRA_INTENT, bundle);
-                            intent1.putExtra(Intent.EXTRA_TEXT, userID);
-                            startActivity(intent1);
-                            Toast.makeText(getBaseContext(), "Clicked!", Toast.LENGTH_SHORT).show();
+                            intent.putExtra(Intent.EXTRA_INTENT, bundle);
+                            intent.putExtra(Intent.EXTRA_TEXT, userID);
+                            startActivity(intent);
                         }
                         break;
 
@@ -109,9 +111,6 @@ public class MainActivity extends AppCompatActivity implements OnFavoritesAdded{
                 return true;
             }
         });
-
-
-
 
         tabLayout = (TabLayout) findViewById(R.id.sliding_tabs);
         tabLayout.setupWithViewPager(viewPager);
@@ -149,24 +148,19 @@ public class MainActivity extends AppCompatActivity implements OnFavoritesAdded{
             ((LinearLayout) linearRoot).setDividerDrawable(drawable);
         }
 
-
         // ---------- Navigation Drawer ------------
         drawerItemList = new ArrayList<>();
         departmentsList = new ArrayList<>();
 
         drawerItemList.add(new DrawerItem(" Home",R.drawable.home));
         drawerItemList.add(new DrawerItem(" Departments",R.drawable.store));
-        drawerItemList.add(new DrawerItem(" Fire & Kindle",R.drawable.temp));
-        drawerItemList.add(new DrawerItem(" Prime",R.drawable.temp));
-        drawerItemList.add(new DrawerItem(" Your Orders",R.drawable.cart));
-        drawerItemList.add(new DrawerItem(" Account",R.drawable.account));
+        drawerItemList.add(new DrawerItem(" My Cart",R.drawable.cart));
+        drawerItemList.add(new DrawerItem(" My Account",R.drawable.account));
         drawerItemList.add(new DrawerItem(" Wishlist",R.drawable.favorite));
         drawerItemList.add(new DrawerItem(" Today's Deals",R.drawable.money));
         drawerItemList.add(new DrawerItem(" Recommendations",R.drawable.temp));
-        drawerItemList.add(new DrawerItem(" Gift Cards",R.drawable.giftcard));
-        drawerItemList.add(new DrawerItem(" Subscribe & Save",R.drawable.temp));
         drawerItemList.add(new DrawerItem(" Change Country",R.drawable.userlocation));
-        drawerItemList.add(new DrawerItem(" Recently Viewed Items",R.drawable.temp));
+        drawerItemList.add(new DrawerItem(" Logout",R.drawable.logout));
         drawerItemList.add(new DrawerItem(" Contact Us",R.drawable.temp));
 
         departmentsList.add(new DrawerItem(" Back",R.drawable.back));
@@ -189,10 +183,10 @@ public class MainActivity extends AppCompatActivity implements OnFavoritesAdded{
 
         LayoutInflater inflater = LayoutInflater.from(getApplicationContext());
         View headerView = inflater.inflate(R.layout.drawer_header, null,false);
-
+        TextView userWelcome = headerView.findViewById(R.id.drawerHeader);
+        userWelcome.setText("Hello, " + username);
         drawerListView.addHeaderView(headerView);
         drawerListView.setOnItemClickListener(new DrawerItemClickListener());
-
 
         //----- Toolbar ---------
         setupToolbar();
@@ -216,14 +210,12 @@ public class MainActivity extends AppCompatActivity implements OnFavoritesAdded{
         TabFragment tabFragment = (TabFragment) getSupportFragmentManager().findFragmentByTag("android:switcher:"+R.id.viewpager+":1");
         if(tabFragment != null) {
             if (tabFragment.wishlistTabSelectionItems.size() != helperInstance.readWishlist(userID).size()) {
-                Log.d("ONrESUME", "IN ON RESUME");
                 tabFragment.wishlistTabSelectionItems = helperInstance.readWishlist(userID);
                 tabFragment.wishlistTabAdapter.notifyDataSetChanged();
             }
         }
         if (getIntent().getIntExtra("buttonNo", 0) > 0) {
             int buttonNo = (getIntent().getIntExtra("buttonNo", 0));
-            Log.d("mytag", "" + buttonNo);
             fragment = itemlistFragment.newInstance(buttonNo);
             FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
             fragmentTransaction.replace(R.id.productFragment, fragment).show(fragment);
@@ -232,7 +224,6 @@ public class MainActivity extends AppCompatActivity implements OnFavoritesAdded{
         }
         super.onResume();
     }
-
 
     public void clearCacheMidnight(Context context){
         try {
@@ -274,10 +265,10 @@ public class MainActivity extends AppCompatActivity implements OnFavoritesAdded{
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
     }
+
     public void setupDrawerToggle(){
         mDrawerToggle = new ActionBarDrawerToggle(this,drawerLayout,toolbar,R.string.drawerTitle, R.string.drawerTitle){
 
-            /** Called when a drawer has settled in a completely closed state. */
             public void onDrawerClosed(View view) {
                 super.onDrawerClosed(view);
                 if(currentDrawerContent.equals("mainPage")) {
@@ -290,13 +281,12 @@ public class MainActivity extends AppCompatActivity implements OnFavoritesAdded{
                 }
             }
 
-            /** Called when a drawer has settled in a completely open state. */
             public void onDrawerOpened(View drawerView)
             {
                 super.onDrawerOpened(drawerView);
             }
         };
-        //This is necessary to change the icon of the Drawer Toggle upon state change. Not necessary in my app atm!!.
+        // Necessary to change toggle state.
         mDrawerToggle.syncState();
     }
 
@@ -328,6 +318,23 @@ public class MainActivity extends AppCompatActivity implements OnFavoritesAdded{
                     drawerListView.setAdapter(drawerAdapter);
                     currentDrawerContent = "departmentsTab";
                     break;
+                case 3:
+                    Intent intent = new Intent(MainActivity.this, CartActivity.class);
+                    Bundle bundle = new Bundle();
+                    bundle.putSerializable("Arraylist", (Serializable) helperInstance.readCart(userID));
+                    intent.putExtra(Intent.EXTRA_INTENT, bundle);
+                    intent.putExtra(Intent.EXTRA_TEXT, userID);
+                    startActivity(intent);
+                    break;
+                case 9:
+                    Intent intent2 = new Intent(this, LoginActivity.class);
+                    intent2.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                    startActivity(intent2);
+                    break;
+                case 10:
+                    Intent intent3 = new Intent(this, DevContactActivity.class);
+                    startActivity(intent3);
+                    break;
                 default:
                     break;
             }
@@ -339,7 +346,6 @@ public class MainActivity extends AppCompatActivity implements OnFavoritesAdded{
             tabLayout.setupWithViewPager(viewPager);
             drawerLayout.closeDrawers();
             searchView.setVisibility(View.INVISIBLE);
-            Log.d("MYTAG","Make invisible");
             pagerAdapter.notifyDataSetChanged();
         }
         else if (currentDrawerContent.equals("departmentsTab")) {
@@ -363,21 +369,38 @@ public class MainActivity extends AppCompatActivity implements OnFavoritesAdded{
         }
     }
 
-
-
-    private class DrawerItemClickListener implements ListView.OnItemClickListener {
-        @Override
-        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                selectDrawerItem(position);
-        }
-    }
-
     public boolean arrayContainChecker(ArrayList<JsonItemOnSale> arrayList, String link){
         for (int i = 0; i < arrayList.size(); i++){
-            if(arrayList.get(i).jsonLink == link)
+            if(arrayList.get(i).jsonLink.equals(link))
                 return false;
         }
         return true;
     }
 
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event)  {
+        if(keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0 && (searchView.getVisibility() == View.VISIBLE)){
+            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+            fragmentTransaction.hide(fragment);
+            fragmentTransaction.commit();
+            searchView.setVisibility(View.INVISIBLE);
+            return true;
+        }
+        else if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) {
+            Intent intent = new Intent(this, LoginActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            intent.putExtra("ExitCommand", true);
+            startActivity(intent);
+            return true;
+        }
+        return super.onKeyDown(keyCode, event);
+    }
+
+    private class DrawerItemClickListener implements ListView.OnItemClickListener {
+        @Override
+        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+            selectDrawerItem(position);
+            lastClickedPosition = position;
+        }
+    }
 }

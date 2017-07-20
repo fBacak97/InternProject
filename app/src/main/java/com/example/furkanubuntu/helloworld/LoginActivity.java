@@ -23,6 +23,9 @@ public class LoginActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
+        if (getIntent().getBooleanExtra("ExitCommand", false)) {
+            finish();
+        }
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_login_activity);
 

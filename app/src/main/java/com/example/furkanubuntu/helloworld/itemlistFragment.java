@@ -52,13 +52,12 @@ public class itemlistFragment extends Fragment {
     MainActivity main;
     JsonAdapter adapter;
     ArrayList<JsonItemOnSale> arrayOfGoods;
-    ArrayList<JsonItemOnSale> arrayOfGoods2;
     ListView listView;
     View view;
     FragmentManager fragmentManager;
     public static final String choiceString = "ARG_PAGE";
     //String imageSize = "Lets see i think i will need this later"; //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    String apiKey = "AIzaSyCj4Ok-oVrrVJassta4kX1dugbtGZTxD9A"; //"AIzaSyBianBdkjLEijeQL3T0RTMgTDd9ydL8J7Y"; //"AIzaSyAwL2u9ByNL9coBouyJBjtx3UXmb_mtC50";  //"AIzaSyCFrT2Vp7pqSBbTecdlzO_bpNkj52iZ04Y";
+    String apiKey = "AIzaSyAwL2u9ByNL9coBouyJBjtx3UXmb_mtC50"; // "AIzaSyCFrT2Vp7pqSBbTecdlzO_bpNkj52iZ04Y"; //"AIzaSyCj4Ok-oVrrVJassta4kX1dugbtGZTxD9A"; //"AIzaSyBianBdkjLEijeQL3T0RTMgTDd9ydL8J7Y"; //
     String cx = "000741119430587044101:2fdfbkejafg";
     String fileType = "jpg";
     String searchType = "image";
@@ -71,6 +70,7 @@ public class itemlistFragment extends Fragment {
     String searchInput = "";
     String aSyncTaskType = "normal";
     String departmentName;
+    boolean userScrolled = false;
 
     public static itemlistFragment newInstance(int choice) {
         Bundle args = new Bundle();
@@ -95,8 +95,7 @@ public class itemlistFragment extends Fragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        arrayOfGoods = new ArrayList<JsonItemOnSale>();
-        arrayOfGoods2 = new ArrayList<JsonItemOnSale>();
+        arrayOfGoods = new ArrayList<>();
         fragmentManager = getActivity().getFragmentManager();
 
         switch (getArguments().getInt(choiceString)) {
@@ -238,16 +237,18 @@ public class itemlistFragment extends Fragment {
             }
         });
         listView.setOnScrollListener(new AbsListView.OnScrollListener() {
-
             @Override
-            public void onScrollStateChanged(AbsListView absListView, int i) {
+            public void onScrollStateChanged(AbsListView absListView, int scrollState) {
+                if(scrollState == AbsListView.OnScrollListener.SCROLL_STATE_TOUCH_SCROLL){
+                    userScrolled = true;
+                }
             }
 
             @Override
             public void onScroll(AbsListView absListView, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
                 if (searchInput.length() == 0) {
                     int lastInScreen = firstVisibleItem + visibleItemCount;
-                    if (lastInScreen == totalItemCount)
+                    if (lastInScreen == totalItemCount && userScrolled)
                     {
                         if (aSyncTask == null || aSyncTask.getStatus() != AsyncTask.Status.RUNNING) {
                             scrollCount++;
@@ -329,7 +330,6 @@ public class itemlistFragment extends Fragment {
 
     private class myASyncTask extends AsyncTask {
         String urlString;
-        int exceptionNo;
 
         myASyncTask(String urlString) {
             super();
@@ -362,8 +362,8 @@ public class itemlistFragment extends Fragment {
                 while ((line = reader.readLine()) != null) {
                     builder.append(line);
                 }
-            } catch (IOException e) {
-                exceptionNo = 1;
+            } catch (Exception e) {
+                e.printStackTrace();
             }
 
             JSONObject jsonObject = null;
@@ -380,7 +380,6 @@ public class itemlistFragment extends Fragment {
                     if(aSyncTaskType.equals("search"))
                         arrayOfGoods.clear();
                     for (int i = 0; i < 10; i++) {
-                        Log.d("MYTAG", jsonArray.getJSONObject(i).getString("link"));
                         arrayOfGoods.add(new JsonItemOnSale("%35", "450$", jsonArray.getJSONObject(i).getString("title"),
                                 jsonArray.getJSONObject(i).getString("link"),departmentName));
                     }
@@ -395,7 +394,6 @@ public class itemlistFragment extends Fragment {
         @Override
         protected void onPostExecute(Object o) {
             super.onPostExecute(o);
-            Log.d("hello", "In post execute");
             adapter.notifyDataSetChanged();
             progressBar.setVisibility(View.GONE);
         }
@@ -418,7 +416,7 @@ public class itemlistFragment extends Fragment {
         return false;
     }
 
-    class JsonAdapter extends ArrayAdapter<JsonItemOnSale> {
+    private class JsonAdapter extends ArrayAdapter<JsonItemOnSale> {
         JsonAdapter(Context context, ArrayList<JsonItemOnSale> goods){
             super(context,0,goods);
         }
@@ -463,7 +461,7 @@ public class itemlistFragment extends Fragment {
             discountAmount.setText(anItem.discount);
             price.setText(anItem.price);
             description.setText(anItem.description);
-            Picasso.with(convertView.getContext()).load(anItem.jsonLink).into(productPic);
+            Picasso.with(convertView.getContext()).load(anItem.jsonLink).fit().into(productPic);
 
             return convertView;
         }

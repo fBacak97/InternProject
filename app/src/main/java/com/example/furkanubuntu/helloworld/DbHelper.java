@@ -5,7 +5,6 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.util.Log;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -14,20 +13,20 @@ import java.util.ArrayList;
  * Created by furkanubuntu on 7/10/17.
  */
 
-public class DbHelper extends SQLiteOpenHelper {
+class DbHelper extends SQLiteOpenHelper {
 
-    Context context;
-    static final String SEARCH_TABLE = "searches";
-    static final String SEARCH_COUNT_TABLE = "searchcounts";
-    static final String CLICK_COUNT_TABLE = "clickcounts";
-    static final String USER_TABLE = "credentials";
-    static final String WISHLIST_TABLE = "wishlist";
-    static final String CART_TABLE = "cart";
-    static final String DATABASE_NAME = "ProjectDB.db";
-    static final int DATABASE_VERSION = 1;
-    static final String[] departmentArray = {"booksaudiobooks", "moviestv", "music", "videogames", "computersoffice", "electronics", "garden", "grocery", "beauty", "kids", "clothing", "sportsoutdoors"};
+    private Context context;
+    private static final String SEARCH_TABLE = "searches";
+    private static final String SEARCH_COUNT_TABLE = "searchcounts";
+    private static final String CLICK_COUNT_TABLE = "clickcounts";
+    private static final String USER_TABLE = "credentials";
+    private static final String WISHLIST_TABLE = "wishlist";
+    private static final String CART_TABLE = "cart";
+    private static final String DATABASE_NAME = "ProjectDB.db";
+    private static final int DATABASE_VERSION = 1;
+    private static final String[] departmentArray = {"booksaudiobooks", "moviestv", "music", "videogames", "computersoffice", "electronics", "garden", "grocery", "beauty", "kids", "clothing", "sportsoutdoors"};
 
-    public DbHelper(Context context) {
+    DbHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
         this.context = context;
     }
@@ -52,7 +51,6 @@ public class DbHelper extends SQLiteOpenHelper {
         sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + SEARCH_TABLE);
         sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + SEARCH_COUNT_TABLE);
         sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + CLICK_COUNT_TABLE);
-        Log.d("Table","Tables got deleted.");
         onCreate(sqLiteDatabase);
     }
 
@@ -60,7 +58,7 @@ public class DbHelper extends SQLiteOpenHelper {
         onUpgrade(db, oldVersion, newVersion);
     }
 
-    public void addWishlist(String link, String description, String department, int userID) {
+    void addWishlist(String link, String description, String department, int userID) {
         SQLiteDatabase db = this.getWritableDatabase();
         if (db.query("wishlist",new String[] {"link"}, "link = ? AND key = ?",new String[] {link, Integer.toString(userID)},null,null,null,null).getCount() == 0) {
             ContentValues values = new ContentValues();
@@ -79,43 +77,58 @@ public class DbHelper extends SQLiteOpenHelper {
         db.close();
     }
 
-    public ArrayList<JsonItemOnSale> readWishlist(int userID) {
-        ArrayList<JsonItemOnSale> jsonArray = new ArrayList<JsonItemOnSale>();
+    ArrayList<JsonItemOnSale> readWishlist(int userID) {
+        ArrayList<JsonItemOnSale> jsonArray = new ArrayList<>();
         SQLiteDatabase db = this.getReadableDatabase();
 
         Cursor cursor = db.query("wishlist", new String[] {"description", "link", "department"}, "key" + " = ?", new String[] {Integer.toString(userID)}, null, null, null, null);
         if (cursor != null) {
             cursor.moveToFirst();
-            Log.d("null", String.valueOf(cursor.getCount()));
+            for (int i = 0; i < cursor.getCount(); i++) {
+                jsonArray.add(new JsonItemOnSale("Random", "Random", cursor.getString(0), cursor.getString(1), cursor.getString(2)));
+                cursor.moveToNext();
+            }
+            cursor.close();
         }
-        for(int i = 0; i < cursor.getCount(); i++){
-            jsonArray.add(new JsonItemOnSale("Random", "Random", cursor.getString(0), cursor.getString(1), cursor.getString(2)));
-            cursor.moveToNext();
-        }
-        cursor.close();
         db.close();
         return jsonArray;
     }
 
-    public void removeWishlist(String link, int userID){
+    void removeWishlist(String link, int userID){
         SQLiteDatabase db = this.getWritableDatabase();
         db.delete("wishlist", "link = ? AND key = ?", new String[] {link, Integer.toString(userID)});
         db.close();
     }
 
-    public int checkCredentials(String username, String password){
+    int checkCredentials(String username, String password){
         SQLiteDatabase db = this.getReadableDatabase();
         if(db.query("credentials",new String[] {"ID"},"username = ? AND password = ?",new String[] {username,password},null,null,null,null).getCount() > 0) {
             Cursor cursor = db.query("credentials",new String[] {"ID"},"username = ? AND password = ?",new String[] {username,password},null,null,null,null);
             cursor.moveToFirst();
             db.close();
-            return cursor.getInt(0);
+            int returnVar = cursor.getInt(0);
+            cursor.close();
+            return returnVar;
         }
         db.close();
         return 0;
     }
 
-    public boolean addCredentials(String username, String password){
+    String getUsername(int userID){
+        SQLiteDatabase db = this.getReadableDatabase();
+        if(db.query("credentials",new String [] {"username"}, "ID = ?", new String[] {String.valueOf(userID)}, null,null,null,null).getCount() > 0){
+            Cursor cursor = db.query("credentials",new String [] {"username"}, "ID = ?", new String[] {String.valueOf(userID)}, null,null,null,null);
+            cursor.moveToFirst();
+            db.close();
+            String returnVar = cursor.getString(0);
+            cursor.close();
+            return returnVar;
+        }
+        db.close();
+        return "";
+    }
+
+    boolean addCredentials(String username, String password){
         SQLiteDatabase db = this.getWritableDatabase();
         if(db.query("credentials",new String[] {"ID"},"username = ?",new String[] {username},null,null,null,null).getCount() > 0){
             db.close();
@@ -136,12 +149,13 @@ public class DbHelper extends SQLiteOpenHelper {
             values1.put("key", userID);
             db.insert("searchcounts",null,values1);
             db.insert("clickcounts",null,values1);
+            cursor.close();
             db.close();
             return true;
         }
     }
 
-    public void addSearch(String search, String department, int userID){
+    void addSearch(String search, String department, int userID){
         SQLiteDatabase db = this.getWritableDatabase();
         if(db.query("searches",new String[] {"search"},"search = ? AND key = ?",new String[] {search,String.valueOf(userID)},null,null,null,null).getCount() == 0){
             ContentValues values = new ContentValues();
@@ -153,7 +167,7 @@ public class DbHelper extends SQLiteOpenHelper {
         }
     }
 
-    public ArrayList<String> readSearches(String department, int userID){
+    ArrayList<String> readSearches(String department, int userID){
         SQLiteDatabase db = this.getReadableDatabase();
         if(db.query("searches",new String[] {"search"},"department = ? AND key = ?",new String[] {department, String.valueOf(userID)},null,null,null,null).getCount() > 0) {
             ArrayList<String> searchArray = new ArrayList<>();
@@ -163,21 +177,24 @@ public class DbHelper extends SQLiteOpenHelper {
             do{
                 searchArray.add(cursor.getString(0));
             } while(cursor.moveToNext());
+            cursor.close();
             return searchArray;
         }
         db.close();
         return null;
     }
 
-    public int readSearchCountOneValue(String department, int userID){
+    private int readSearchCountOneValue(String department, int userID){
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.query("searchcounts",new String[] {department},"key = ?",new String[] {String.valueOf(userID)},null,null,null,null);
         cursor.moveToFirst();
         db.close();
-        return cursor.getInt(0);
+        int returnVar = cursor.getInt(0);
+        cursor.close();
+        return returnVar;
     }
 
-    public String readMaxSearchCount(int userID){
+    String readMaxSearchCount(int userID){
         int max = 0;
         for(int i = 0; i < departmentArray.length; i++){
             int value = readSearchCountOneValue(departmentArray[i], userID);
@@ -187,7 +204,7 @@ public class DbHelper extends SQLiteOpenHelper {
         return departmentArray[max];
     }
 
-    public void addSearchCount(String department, int userID){
+    void addSearchCount(String department, int userID){
         SQLiteDatabase db = this.getWritableDatabase();
         Cursor cursor = db.query("searchcounts",new String[] {department},"key = ?",new String[] {String.valueOf(userID)},null,null,null,null);
         cursor.moveToFirst();
@@ -195,18 +212,21 @@ public class DbHelper extends SQLiteOpenHelper {
         ContentValues values = new ContentValues();
         values.put(department,String.valueOf(oldValue + 1));
         db.update("searchcounts",values,"key = ?",new String[] {String.valueOf(userID)});
+        cursor.close();
         db.close();
     }
 
-    public int readClickCountOneValue(String department, int userID){
+    private int readClickCountOneValue(String department, int userID){
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.query("clickcounts",new String[] {department},"key = ?",new String[] {String.valueOf(userID)},null,null,null,null);
         cursor.moveToFirst();
         db.close();
-        return cursor.getInt(0);
+        int returnVar = cursor.getInt(0);
+        cursor.close();
+        return returnVar;
     }
 
-    public String readMaxClickCount(int userID){
+    String readMaxClickCount(int userID){
         int max = 0;
         for(int i = 0; i < departmentArray.length; i++){
             int value = readClickCountOneValue(departmentArray[i], userID);
@@ -216,7 +236,7 @@ public class DbHelper extends SQLiteOpenHelper {
         return departmentArray[max];
     }
 
-    public void addClickCount(String department, int userID){
+    void addClickCount(String department, int userID){
         SQLiteDatabase db = this.getWritableDatabase();
         Cursor cursor = db.query("clickcounts",new String[] {department},"key = ?",new String[] {String.valueOf(userID)},null,null,null,null);
         cursor.moveToFirst();
@@ -224,10 +244,11 @@ public class DbHelper extends SQLiteOpenHelper {
         ContentValues values = new ContentValues();
         values.put(department,String.valueOf(oldValue + 1));
         db.update("clickcounts",values,"key = ?",new String[] {String.valueOf(userID)});
+        cursor.close();
         db.close();
     }
 
-    public void addCart(String link, String description, String department, int userID) {
+    void addCart(String link, String description, String department, int userID) {
         SQLiteDatabase db = this.getWritableDatabase();
         if (db.query("cart",new String[] {"link"}, "link = ? AND key = ?",new String[] {link, Integer.toString(userID)},null,null,null,null).getCount() == 0) {
             ContentValues values = new ContentValues();
@@ -246,13 +267,12 @@ public class DbHelper extends SQLiteOpenHelper {
         db.close();
     }
 
-    public ArrayList<JsonItemOnSale> readCart(int userID) {
+    ArrayList<JsonItemOnSale> readCart(int userID) {
         ArrayList<JsonItemOnSale> jsonArray = new ArrayList<>();
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.query("cart", new String[] {"description", "link", "department"}, "key" + " = ?", new String[] {Integer.toString(userID)}, null, null, null, null);
         if (cursor != null) {
             cursor.moveToFirst();
-            Log.d("null", String.valueOf(cursor.getCount()));
         }
         for(int i = 0; i < cursor.getCount(); i++){
             jsonArray.add(new JsonItemOnSale("450$", "450$", cursor.getString(0), cursor.getString(1), cursor.getString(2)));
@@ -263,7 +283,7 @@ public class DbHelper extends SQLiteOpenHelper {
         return jsonArray;
     }
 
-    public void removeCart(String link, int userID){
+    void removeCart(String link, int userID){
         SQLiteDatabase db = this.getWritableDatabase();
         db.delete("cart", "link = ? AND key = ?", new String[] {link, Integer.toString(userID)});
         db.close();

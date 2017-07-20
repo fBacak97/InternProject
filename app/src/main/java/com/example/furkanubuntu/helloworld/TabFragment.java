@@ -74,7 +74,7 @@ public class TabFragment extends Fragment {
     Random randomGen = new Random();
     int randomNo = randomGen.nextInt(11) + 25;
     String start = "" + randomNo;
-    String apiKey = "AIzaSyCj4Ok-oVrrVJassta4kX1dugbtGZTxD9A"; //"AIzaSyBianBdkjLEijeQL3T0RTMgTDd9ydL8J7Y"; //"AIzaSyAwL2u9ByNL9coBouyJBjtx3UXmb_mtC50"; //"AIzaSyCFrT2Vp7pqSBbTecdlzO_bpNkj52iZ04Y"; // ////
+    String apiKey = "AIzaSyAwL2u9ByNL9coBouyJBjtx3UXmb_mtC50"; // "AIzaSyCFrT2Vp7pqSBbTecdlzO_bpNkj52iZ04Y"; //"AIzaSyCj4Ok-oVrrVJassta4kX1dugbtGZTxD9A"; //"AIzaSyBianBdkjLEijeQL3T0RTMgTDd9ydL8J7Y"; //";
     String cx = "000741119430587044101:2fdfbkejafg";
     String fileType = "jpg";
     String searchType = "image";
@@ -82,6 +82,7 @@ public class TabFragment extends Fragment {
     private int mPage;
     DbHelper helperInstance;
     MainActivity main;
+    boolean userScrolled = false;
 
     OnFavoritesAdded mCallback;
 
@@ -243,14 +244,17 @@ public class TabFragment extends Fragment {
             clicksMaxDepartment = helperInstance.readMaxClickCount(main.userID);
             homeTabListView.setOnScrollListener(new AbsListView.OnScrollListener() {
                 @Override
-                public void onScrollStateChanged(AbsListView absListView, int i) {
+                public void onScrollStateChanged(AbsListView absListView, int scrollState) {
+                    if(scrollState == AbsListView.OnScrollListener.SCROLL_STATE_TOUCH_SCROLL){
+                        userScrolled = true;
+                    }
                 }
 
                 @Override
                 public void onScroll(AbsListView absListView, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
                     int lastInScreen = firstVisibleItem + visibleItemCount;
                     if (searchList != null){
-                        if (lastInScreen == totalItemCount && scrollCount < searchList.size())
+                        if (lastInScreen == totalItemCount && scrollCount < searchList.size() && userScrolled)
                         {
                             if (searchASyncTask == null || searchASyncTask.getStatus() != AsyncTask.Status.RUNNING) {
                                 searchCriteria = searchesMaxDepartment + searchList.get(scrollCount);
@@ -334,7 +338,7 @@ public class TabFragment extends Fragment {
         }
     }
 
-    class HomeTabAdapter extends ArrayAdapter<JsonItemOnSale> {
+    private class HomeTabAdapter extends ArrayAdapter<JsonItemOnSale> {
         HomeTabAdapter(Context context, ArrayList<JsonItemOnSale> goods){
             super(context,0,goods);
         }
@@ -363,11 +367,7 @@ public class TabFragment extends Fragment {
                     MainActivity main = (MainActivity) getActivity();
                     DbHelper helperInstance = main.getInstance();
                     helperInstance.addWishlist(anItem.jsonLink, anItem.description, anItem.department,main.userID);
-                    try{
-                        mCallback.onFavButtonPressed(anItem.description, anItem.jsonLink, anItem.department);
-                    } catch (Exception e){
-                        e.printStackTrace();
-                    }
+                    mCallback.onFavButtonPressed(anItem.description, anItem.jsonLink, anItem.department);
                 }
             });
 
@@ -383,13 +383,13 @@ public class TabFragment extends Fragment {
             discountAmount.setText(anItem.discount);
             price.setText(anItem.price);
             description.setText(anItem.description);
-            Picasso.with(convertView.getContext()).load(anItem.jsonLink).into(productPic);
+            Picasso.with(convertView.getContext()).load(anItem.jsonLink).fit().into(productPic);
 
             return convertView;
         }
     }
 
-    class HomeTabASyncTask extends AsyncTask {
+    private class HomeTabASyncTask extends AsyncTask {
         String urlString;
         int exceptionNo;
 
@@ -441,7 +441,6 @@ public class TabFragment extends Fragment {
                     jsonArray = jsonObject.getJSONArray("items");
 
                     for (int i = 0; i < 10; i++) {
-                        Log.d("MYTAG", jsonArray.getJSONObject(i).getString("link"));
                         if(retrieveType.equals("wishlist"))
                             homeTabSelectionItems.add(new JsonItemOnSale("%35", "450$", jsonArray.getJSONObject(i).getString("title"),
                                     jsonArray.getJSONObject(i).getString("link"), wishlistMaxDepartment));
@@ -463,7 +462,6 @@ public class TabFragment extends Fragment {
         @Override
         protected void onPostExecute(Object o) {
             super.onPostExecute(o);
-            Log.d("hello", "In post execute");
             homeTabAdapter.notifyDataSetChanged();
             if(progressBar != null)
                 progressBar.setVisibility(View.INVISIBLE);

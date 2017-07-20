@@ -17,17 +17,15 @@ import java.util.ArrayList;
  */
 
 class DrawerAdapter extends ArrayAdapter<DrawerItem> {
-    public DrawerItem drawerItem;
 
     DrawerAdapter(Context context, ArrayList<DrawerItem> choices){
         super(context,0,choices);
     }
 
-
     @NonNull
     @Override
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
-        drawerItem = getItem(position);
+        DrawerItem drawerItem = getItem(position);
 
         if(convertView == null)
         {

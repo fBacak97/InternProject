@@ -12,6 +12,7 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
@@ -27,6 +28,7 @@ import org.json.JSONObject;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.Serializable;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -38,7 +40,6 @@ import java.util.Random;
  */
 
 public class ProductActivity extends AppCompatActivity {
-
 
     ListView drawerListView;
     DrawerLayout productDrawerLayout;
@@ -52,7 +53,7 @@ public class ProductActivity extends AppCompatActivity {
     TextView header;
     TextView description;
     imageScrollAdapter adapter;
-    String apiKey = "AIzaSyCj4Ok-oVrrVJassta4kX1dugbtGZTxD9A"; //"AIzaSyBianBdkjLEijeQL3T0RTMgTDd9ydL8J7Y";  //"AIzaSyAwL2u9ByNL9coBouyJBjtx3UXmb_mtC50"; //"AIzaSyCFrT2Vp7pqSBbTecdlzO_bpNkj52iZ04Y";
+    String apiKey = "AIzaSyAwL2u9ByNL9coBouyJBjtx3UXmb_mtC50"; //"AIzaSyCFrT2Vp7pqSBbTecdlzO_bpNkj52iZ04Y"; //"AIzaSyCj4Ok-oVrrVJassta4kX1dugbtGZTxD9A"; //"AIzaSyBianBdkjLEijeQL3T0RTMgTDd9ydL8J7Y";  // //
     String cx = "000741119430587044101:2fdfbkejafg";
     int randomNo;
     int userID;
@@ -83,24 +84,20 @@ public class ProductActivity extends AppCompatActivity {
         Random randomGen = new Random();
         randomNo = randomGen.nextInt(21) + 5;
         start = "" + randomNo;
-        Button addFavButton = (Button) findViewById(R.id.productFavButton);
-        Button addCartButton = (Button) findViewById(R.id.productBuyButton);
+        final Button favButton = (Button) findViewById(R.id.productFavButton);
+        final Button cartButton = (Button) findViewById(R.id.productBuyButton);
 
         helperInstance = new DbHelper(this);
 
         drawerItemList.add(new DrawerItem(" Home",R.drawable.home));
         drawerItemList.add(new DrawerItem(" Departments",R.drawable.store));
-        drawerItemList.add(new DrawerItem(" Fire & Kindle",R.drawable.temp));
-        drawerItemList.add(new DrawerItem(" Prime",R.drawable.temp));
-        drawerItemList.add(new DrawerItem(" Your Orders",R.drawable.cart));
-        drawerItemList.add(new DrawerItem(" Account",R.drawable.account));
+        drawerItemList.add(new DrawerItem(" My Cart",R.drawable.cart));
+        drawerItemList.add(new DrawerItem(" My Account",R.drawable.account));
         drawerItemList.add(new DrawerItem(" Wishlist",R.drawable.favorite));
         drawerItemList.add(new DrawerItem(" Today's Deals",R.drawable.money));
         drawerItemList.add(new DrawerItem(" Recommendations",R.drawable.temp));
-        drawerItemList.add(new DrawerItem(" Gift Cards",R.drawable.giftcard));
-        drawerItemList.add(new DrawerItem(" Subscribe & Save",R.drawable.temp));
         drawerItemList.add(new DrawerItem(" Change Country",R.drawable.userlocation));
-        drawerItemList.add(new DrawerItem(" Recently Viewed Items",R.drawable.temp));
+        drawerItemList.add(new DrawerItem(" Logout",R.drawable.logout));
         drawerItemList.add(new DrawerItem(" Contact Us",R.drawable.temp));
 
         departmentsList.add(new DrawerItem(" Back",R.drawable.back));
@@ -148,14 +145,44 @@ public class ProductActivity extends AppCompatActivity {
         UniqueASyncTask aSyncTask = new UniqueASyncTask(combinedUrl);
         aSyncTask.execute();
 
-        addFavButton.setOnClickListener(new View.OnClickListener() {
+        if(wishlistContainChecker(userID))
+            favButton.setText("Remove from Wishlist");
+
+        if(cartContainChecker(userID))
+            cartButton.setText("Remove from Cart");
+
+        favButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if(wishlistContainChecker(userID)) {
-                    helperInstance.removeWishlist(linkArray.get(0),userID);
+                    helperInstance.removeWishlist(linkArray.get(0), userID);
+                    favButton.setText("Add to Wishlist");
+                    Toast toast = Toast.makeText(ProductActivity.this,"The item has been removed from your wishlist.",Toast.LENGTH_SHORT);
+                    toast.show();
                 }
                 else{
-                    helperInstance.addWishlist(linkArray.get(0),description.getText().toString(),intent.getStringExtra("Department"),userID);
+                    helperInstance.addWishlist(linkArray.get(0), description.getText().toString(), intent.getStringExtra("Department"), userID);
+                    favButton.setText("Remove from Wishlist");
+                    Toast toast = Toast.makeText(ProductActivity.this,"The item has been added to your wishlist.",Toast.LENGTH_SHORT);
+                    toast.show();
+                }
+            }
+        });
+
+        cartButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(cartContainChecker(userID)) {
+                    helperInstance.removeCart(linkArray.get(0), userID);
+                    cartButton.setText("Add to Cart");
+                    Toast toast = Toast.makeText(ProductActivity.this,"The item has been removed from your cart.",Toast.LENGTH_SHORT);
+                    toast.show();
+                }
+                else{
+                    helperInstance.addCart(linkArray.get(0), description.getText().toString(), intent.getStringExtra("Department"), userID);
+                    cartButton.setText("Remove from Cart");
+                    Toast toast = Toast.makeText(ProductActivity.this,"The item has been added to your cart.",Toast.LENGTH_SHORT);
+                    toast.show();
                 }
             }
         });
@@ -166,6 +193,7 @@ public class ProductActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
     }
+
     public void setupDrawerToggle(){
         mDrawerToggle = new ActionBarDrawerToggle(this,productDrawerLayout,toolbar,R.string.drawerTitle, R.string.drawerTitle){
 
@@ -234,6 +262,23 @@ public class ProductActivity extends AppCompatActivity {
                     drawerListView.setAdapter(drawerAdapter);
                     currentDrawerContent = "departmentsTab";
                     break;
+                case 3:
+                    Intent intent2 = new Intent(ProductActivity.this, CartActivity.class);
+                    Bundle bundle = new Bundle();
+                    bundle.putSerializable("Arraylist", (Serializable) helperInstance.readCart(userID));
+                    intent2.putExtra(Intent.EXTRA_INTENT, bundle);
+                    intent2.putExtra(Intent.EXTRA_TEXT, userID);
+                    startActivity(intent2);
+                    break;
+                case 9:
+                    Intent intent3 = new Intent(this, LoginActivity.class);
+                    intent3.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                    startActivity(intent3);
+                    break;
+                case 10:
+                    Intent intent4 = new Intent(this, DevContactActivity.class);
+                    startActivity(intent4);
+                    break;
                 default:
                     break;
             }
@@ -250,7 +295,6 @@ public class ProductActivity extends AppCompatActivity {
             currentDrawerContent = "mainPage";
         }
     }
-
 
     private class DrawerItemClickListener implements ListView.OnItemClickListener {
         @Override
@@ -327,7 +371,6 @@ public class ProductActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(Object o) {
             super.onPostExecute(o);
-
             adapter = new imageScrollAdapter(linkArray,getBaseContext());
             viewPager.setAdapter(adapter);
             if (o == null) {
@@ -340,5 +383,17 @@ public class ProductActivity extends AppCompatActivity {
             adapter.notifyDataSetChanged();
         }
     }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event)  {
+        if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) {
+            Intent intent = new Intent(this,MainActivity.class);
+            intent.putExtra(Intent.EXTRA_TITLE, userID);
+            startActivity(intent);
+            return true;
+        }
+        return super.onKeyDown(keyCode, event);
+    }
+
 
 }

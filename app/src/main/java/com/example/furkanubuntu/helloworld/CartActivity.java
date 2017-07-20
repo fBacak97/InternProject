@@ -74,7 +74,7 @@ public class CartActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
-    class CartAdapter extends ArrayAdapter<JsonItemOnSale> {
+    private class CartAdapter extends ArrayAdapter<JsonItemOnSale> {
         CartAdapter(@NonNull Context context, ArrayList<JsonItemOnSale> cart) {
             super(context, 0, cart);
         }

@@ -1,7 +1,6 @@
 package com.example.furkanubuntu.helloworld;
 
 import android.content.Context;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.util.Log;
@@ -15,21 +14,19 @@ import java.util.Map;
  */
 
 class PagerAdapter extends FragmentPagerAdapter {
-    final int PAGE_COUNT = 3;
+    private final int PAGE_COUNT = 3;
     private String tabTitles[] = new String[] { "Home", "Wishlist", "Account" };
-    private Context context;
     String description;
-    String link;
-    String department;
-    Map<Integer, String> mFragmentTags;
+    private String link;
+    private String department;
+    private Map<Integer, String> mFragmentTags;
 
-    PagerAdapter(FragmentManager fm, Context context, String description, String link, String department) {
-        super(fm);
-        this.context = context;
+    PagerAdapter(FragmentManager fragmentManager, Context context, String description, String link, String department) {
+        super(fragmentManager);
         this.description = description;
         this.link = link;
         this.department = department;
-        mFragmentTags = new HashMap<Integer, String>();
+        mFragmentTags = new HashMap<>();
     }
 
     @Override
