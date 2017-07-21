@@ -85,7 +85,7 @@ class DbHelper extends SQLiteOpenHelper {
         if (cursor != null) {
             cursor.moveToFirst();
             for (int i = 0; i < cursor.getCount(); i++) {
-                jsonArray.add(new JsonItemOnSale("Random", "Random", cursor.getString(0), cursor.getString(1), cursor.getString(2)));
+                jsonArray.add(new JsonItemOnSale("450$", "450$", cursor.getString(0), cursor.getString(1), cursor.getString(2)));
                 cursor.moveToNext();
             }
             cursor.close();

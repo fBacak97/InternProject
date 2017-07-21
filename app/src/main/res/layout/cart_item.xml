@@ -17,13 +17,13 @@
         <RelativeLayout
 
             android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:minHeight="40dp"
+            android:layout_height="50sp"
+            android:minHeight="40sp"
             >
 
             <ImageView
                 android:id="@+id/cartPic"
-                android:layout_width="50dp"
+                android:layout_width="50sp"
                 android:layout_height="match_parent"
                 android:scaleType="centerCrop"
                 android:adjustViewBounds="true"
@@ -43,8 +43,8 @@
                 android:layout_toLeftOf="@+id/cartPrice"
                 android:layout_toRightOf="@+id/cartPic"
                 android:layout_toEndOf="@+id/cartPic"
-                android:layout_marginRight="10dp"
-                android:layout_marginEnd="10dp"/>
+                android:layout_marginRight="10sp"
+                android:layout_marginEnd="10sp"/>
 
             <TextView
                 android:id="@+id/cartPrice"
@@ -63,15 +63,15 @@
 
             <Button
                 android:id="@+id/removeCartButton"
-                android:layout_width="50dp"
+                android:layout_width="50sp"
                 android:layout_height="wrap_content"
                 android:drawableTop="@drawable/remove24"
                 style="@style/AppTheme.Button"
                 android:layout_alignParentTop="true"
                 android:layout_alignParentRight="true"
                 android:layout_alignParentEnd="true"
-                android:layout_marginRight="7dp"
-                android:layout_marginEnd="7dp" />
+                android:layout_marginRight="7sp"
+                android:layout_marginEnd="7sp" />
 
         </RelativeLayout>
 

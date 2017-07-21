@@ -8,7 +8,7 @@
     <ImageView
         android:id="@+id/productPic"
         android:layout_width="match_parent"
-        android:layout_height="200dp"
+        android:layout_height="260sp"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
@@ -17,7 +17,7 @@
     <TextView
         android:id="@+id/discountText"
         android:layout_width="wrap_content"
-        android:layout_height="50dp"
+        android:layout_height="50sp"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
@@ -33,7 +33,7 @@
     <TextView
         android:id="@+id/priceText"
         android:layout_width="wrap_content"
-        android:layout_height="55dp"
+        android:layout_height="55sp"
         android:layout_alignBottom="@+id/productPic"
         android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
@@ -45,8 +45,8 @@
 
     <ImageView
         android:id="@+id/imageView2"
-        android:layout_width="250dp"
-        android:layout_height="90dp"
+        android:layout_width="250sp"
+        android:layout_height="100sp"
         android:layout_alignParentEnd="true"
         android:layout_alignParentLeft="true"
         android:layout_alignParentRight="true"
@@ -56,28 +56,34 @@
 
     <Button
         android:id="@+id/favButton"
-        android:layout_width="170dp"
-        android:layout_height="35dp"
+        android:layout_width="180sp"
+        android:layout_height="35sp"
         android:background="#8BC34A"
         android:text="Add to Wishlist"
         android:layout_alignLeft="@+id/infoText"
         android:layout_alignStart="@+id/infoText"
-        android:layout_alignBottom="@+id/imageView2" />
+        android:layout_alignBottom="@+id/imageView2"
+        android:layout_marginBottom="6dp"
+        android:layout_marginLeft="4dp"
+        android:layout_marginStart="4dp"/>
 
     <Button
         android:id="@+id/buyButton"
-        android:layout_width="170dp"
-        android:layout_height="35dp"
+        android:layout_width="180sp"
+        android:layout_height="35sp"
         android:background="#8BC34A"
         android:text="Add to Cart"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
-        android:layout_alignBottom="@+id/imageView2" />
+        android:layout_alignBottom="@+id/imageView2"
+        android:layout_marginBottom="6dp"
+        android:layout_marginRight="4dp"
+        android:layout_marginEnd="4dp"/>
 
     <TextView
         android:id="@+id/infoText"
-        android:layout_width="270dp"
-        android:layout_height="55dp"
+        android:layout_width="270sp"
+        android:layout_height="55sp"
         android:text="Information"
         android:gravity="center"
         android:textAlignment="center"

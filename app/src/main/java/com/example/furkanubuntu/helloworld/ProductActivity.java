@@ -53,7 +53,8 @@ public class ProductActivity extends AppCompatActivity {
     TextView header;
     TextView description;
     imageScrollAdapter adapter;
-    String apiKey = "AIzaSyAwL2u9ByNL9coBouyJBjtx3UXmb_mtC50"; //"AIzaSyCFrT2Vp7pqSBbTecdlzO_bpNkj52iZ04Y"; //"AIzaSyCj4Ok-oVrrVJassta4kX1dugbtGZTxD9A"; //"AIzaSyBianBdkjLEijeQL3T0RTMgTDd9ydL8J7Y";  // //
+    String apiKey =  "AIzaSyDnvQwUHtASpbT6ZVOkxRy6Gxak46BemTk";  //"AIzaSyCj4Ok-oVrrVJassta4kX1dugbtGZTxD9A"; //"AIzaSyBianBdkjLEijeQL3T0RTMgTDd9ydL8J7Y"; "AIzaSyCFrT2Vp7pqSBbTecdlzO_bpNkj52iZ04Y";
+                                                                 //"AIzaSyAwL2u9ByNL9coBouyJBjtx3UXmb_mtC50"; //
     String cx = "000741119430587044101:2fdfbkejafg";
     int randomNo;
     int userID;
@@ -67,6 +68,7 @@ public class ProductActivity extends AppCompatActivity {
     TabLayout swipeDots;
     DbHelper helperInstance;
     Intent intent;
+    boolean changesMadeInDb = false;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -157,12 +159,14 @@ public class ProductActivity extends AppCompatActivity {
                 if(wishlistContainChecker(userID)) {
                     helperInstance.removeWishlist(linkArray.get(0), userID);
                     favButton.setText("Add to Wishlist");
+                    changesMadeInDb = true;
                     Toast toast = Toast.makeText(ProductActivity.this,"The item has been removed from your wishlist.",Toast.LENGTH_SHORT);
                     toast.show();
                 }
                 else{
                     helperInstance.addWishlist(linkArray.get(0), description.getText().toString(), intent.getStringExtra("Department"), userID);
                     favButton.setText("Remove from Wishlist");
+                    changesMadeInDb = true;
                     Toast toast = Toast.makeText(ProductActivity.this,"The item has been added to your wishlist.",Toast.LENGTH_SHORT);
                     toast.show();
                 }
@@ -386,7 +390,7 @@ public class ProductActivity extends AppCompatActivity {
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event)  {
-        if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) {
+        if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0 && changesMadeInDb) {
             Intent intent = new Intent(this,MainActivity.class);
             intent.putExtra(Intent.EXTRA_TITLE, userID);
             startActivity(intent);
